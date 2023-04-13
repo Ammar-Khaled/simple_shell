@@ -49,7 +49,7 @@ begin:
 	printf("($) ");
 	nread = getline(&lineptr, &linesize, stdin); /* read line */
 	if (feof(stdin))
-		exit(0);
+		goto clean;
 	if (nread == -1)
 	{
 		perror(name);
@@ -58,4 +58,7 @@ begin:
 	lineptr[strlen(lineptr) - 1] = 0; /* remove last byte (delim) */
 	execute(name, lineptr, environ);
 	goto begin;
+clean:
+	free(lineptr);
+	return (0);
 }
