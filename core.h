@@ -1,5 +1,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
+#include <stddef.h>
 
 #define BUFSIZE 1024
 #define TOKEN_BUFSIZE 64
@@ -17,7 +18,7 @@ typedef struct command_s
 	command_fn cmd;
 } command_t;
 
-char *readline(const char *prompt);
+void readline(char *name, char *prompt, char **line, size_t *size);
 char **splitline(char *line);
 int execute(const char *name, char **cmd, char *const *environ);
 int evaluate(char *name, char **args, char **environ);

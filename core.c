@@ -8,16 +8,16 @@
 
 /**
  * readline - prompt user for the whole command line
+ * @name: the name of the shell
  * @prompt: the prompt string printed before every input
- *
- * Return: the string it read
+ * @line: pointer to the line cstring variable
+ * @size: pointer to the line size variable
  */
-char *readline(const char *prompt)
+void readline(char *name, char *prompt, char **line, size_t *size)
 {
-	int bufsize, ibuf, ch;
+	int bufsize = BUFSIZE, ibuf = 0, ch;
 	char *buf;
 
-	bufsize = BUFSIZE;
 	/* allocate one KB for the buffer */
 	buf = malloc(bufsize * sizeof(char));
 	if (!buf)
@@ -28,18 +28,25 @@ char *readline(const char *prompt)
 	while (1)
 	{
 		ch = getchar();
-		if (ch == EOF || ch == '\n')
+		if (ch == EOF)
 		{
-			buf[ibuf] = '\0';
-			return (buf);
+			if (ibuf)
+				continue; /* ignore EOF if buffer is not empty */
+			else
+				exit(EXIT_SUCCESS); /* exit shell on EOF if buffer is empty */
 		}
-		buf[ibuf] = ch;
+
+		buf[ibuf] = ch == '\n' ? 0 : ch;
+		/* end buffer on newline char */
+		if (!buf[ibuf])
+			break;
 		ibuf++;
+
 		/*
 		 * if the buffer iterator exceeded the buffer size
 		 * reallocate the buffer with the size increased by 1KB
 		 */
-		if (ibuf > bufsize - 1)
+		if (ibuf >= bufsize)
 		{
 			bufsize += BUFSIZE;
 			buf = realloc(buf, bufsize * sizeof(char));
@@ -47,9 +54,12 @@ char *readline(const char *prompt)
 				goto end;
 		}
 	}
-	return (buf);
+	/* set line to the buffer pointer and set the line size */
+	*line = buf;
+	*size = ibuf;
+	return;
 end:
-	fprintf(stderr, "Memory allocation error\n");
+	fprintf(stderr, "%s: Memory allocation error\n", name);
 	exit(EXIT_FAILURE);
 }
 
@@ -61,12 +71,10 @@ end:
 */
 char **splitline(char *line)
 {
-	int token_bufsize, i;
+	unsigned int token_bufsize = TOKEN_BUFSIZE, i = 0;
 	char *token;
 	char **tokens;
 
-	token_bufsize = TOKEN_BUFSIZE;
-	i = 0;
 	tokens = malloc(token_bufsize * sizeof(char *));
 	if (!tokens)
 		goto end;
@@ -99,7 +107,7 @@ end:
  * @cmd: array of strings contains the command and its arguments
  * @environ: environment
  *
- * Return: 1 for Success
+ * Return: exit status of child otherwise -1 on fail and prints error message
  */
 int execute(const char *name, char **cmd, char *const *environ)
 {
@@ -121,7 +129,7 @@ int execute(const char *name, char **cmd, char *const *environ)
 	do {
 		waitpid(pid, &wstatus, WUNTRACED);
 	} while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
-	return (1);
+	return (WEXITSTATUS(wstatus)); /* return child exit status */
 }
 
 /**

@@ -18,7 +18,7 @@ int builtin_exit(int argc, char **argv, char **environ __attribute__((unused)))
 
 	if (argc > 2)
 	{
-		dprintf(STDERR_FILENO, "Usage: %s [status]", argv[0]);
+		dprintf(STDERR_FILENO, "Usage: %s [status]\n", argv[0]);
 		return (1);
 	}
 
