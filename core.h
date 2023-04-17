@@ -18,9 +18,9 @@ typedef struct command_s
 	command_fn cmd;
 } command_t;
 
+char *_strtok(char *str, const char *delim);
 void readline(char *name, char *prompt, char **line, size_t *size);
 char **splitline(char *line);
-int execute(const char *name, char **cmd, char *const *environ);
 int evaluate(char *name, char **args, char **environ);
 
 #endif

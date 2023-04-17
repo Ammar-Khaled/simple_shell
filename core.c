@@ -1,10 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
 #include "core.h"
 #include "builtin.h"
+#include "process.h"
+
+/**
+ * _strtok - strtok implementation
+ * @str: string to split
+ * @delim: characters to be used as a delimeter
+ *
+ * Return: pointer to the start of the token in @str
+ */
+char *_strtok(char *str, const char *delim)
+{
+	char *start, *end;
+	static char *cache;
+
+	if (str)
+		cache = str;
+	if (!cache)
+		return (NULL);
+
+	start = cache;
+	end = strpbrk(cache, delim);
+	if (end)
+	{
+		*end = 0;
+		cache = end + 1;
+	} else {
+		cache = NULL;
+	}
+	return (start);
+}
 
 /**
  * readline - prompt user for the whole command line
@@ -79,7 +107,7 @@ char **splitline(char *line)
 	if (!tokens)
 		goto end;
 	/*get the first token*/
-	token = strtok(line, DELIMETERS);
+	token = _strtok(line, DELIMETERS);
 	while (token)
 	{
 		tokens[i++] = token;
@@ -92,44 +120,13 @@ char **splitline(char *line)
 				goto end;
 		}
 		/*get the next token*/
-		token = strtok(NULL, DELIMETERS);
+		token = _strtok(NULL, DELIMETERS);
 	}
 	tokens[i] = NULL;
 	return (tokens);
 end:
 	fprintf(stderr, "Memory allocation error\n");
 	exit(EXIT_FAILURE);
-}
-
-/**
- * execute - executes the exectable program files
- * @name: name of our program (required for error handling)
- * @cmd: array of strings contains the command and its arguments
- * @environ: environment
- *
- * Return: exit status of child otherwise -1 on fail and prints error message
- */
-int execute(const char *name, char **cmd, char *const *environ)
-{
-	pid_t pid = fork();
-	int wstatus;
-
-	if (!pid)
-	{
-		execve(cmd[0], cmd, environ);
-		perror(name);
-		exit(EXIT_FAILURE);
-	}
-	else if (pid == -1)
-	{
-		perror(name);
-		return (-1);
-	}
-
-	do {
-		waitpid(pid, &wstatus, WUNTRACED);
-	} while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
-	return (WEXITSTATUS(wstatus)); /* return child exit status */
 }
 
 /**
