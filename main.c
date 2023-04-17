@@ -4,6 +4,46 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+/**
+ * builtin_exit - exit the program
+ * @args: splited command line
+ *
+ * Return: an integer as a signal of termination
+ */
+int builtin_exit(char *status)
+{
+	int int_status, i;
+
+	if (status == NULL)
+	{
+		return (0);
+	}
+
+	int_status = 0;
+	for (i = 0; status[i]; i++)
+	{
+		int_status *= 10;
+		int_status += status[i] - '0';
+	}
+
+	return (int_status);
+}
+
+/**
+ * builtin_env - prints environment variables
+ * @environ: NULL-terminated array of strings
+ *
+ */
+void builtin_env(char **environ)
+{
+	int i;
+
+	for (i = 0; environ[i]; i++)
+	{
+		printf("%s\n", environ[i]);
+	}
+}
+
 #define TOKEN_BUFSIZE 64
 #define DELIMETERS " \t\r\a\n"
 /**
@@ -57,7 +97,7 @@ char **split_line(char *line)
  * @environ: environment
  *
  * Return: 1 for Success
-*/
+ */
 int execute(const char *name, char **cmd, char *const *environ)
 {
 	pid_t pid = fork();
@@ -75,7 +115,8 @@ int execute(const char *name, char **cmd, char *const *environ)
 		return (-1);
 	}
 
-	do {
+	do
+	{
 		waitpid(pid, &wstatus, WUNTRACED);
 	} while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
 	return (1);
@@ -119,7 +160,20 @@ begin:
 	}
 	lineptr[strlen(lineptr) - 1] = 0; /* remove last byte (delim) */
 	args = split_line(lineptr);
-	execute(name, args, environ);
+	if (strcmp(args[0], "exit") == 0)
+	{
+		builtin_exit(args[1]);
+		goto clean;
+	}
+	else if (strcmp(args[0], "env") == 0)
+	{
+		builtin_env(environ);
+	}
+	else
+	{
+		execute(name, args, environ);
+	}
+
 	goto begin;
 clean:
 	free(lineptr);
