@@ -28,7 +28,9 @@ char *_strtok(char *str, const char *delim)
 	{
 		*end = 0;
 		cache = end + 1;
-	} else {
+	}
+	else
+	{
 		cache = NULL;
 	}
 	return (start);
@@ -46,13 +48,10 @@ void readline(char *name, char *prompt, char **line, size_t *size)
 	int bufsize = BUFSIZE, ibuf = 0, ch;
 	char *buf;
 
-	/* allocate one KB for the buffer */
-	buf = malloc(bufsize * sizeof(char));
+	buf = malloc(bufsize * sizeof(char)); /* allocate one KB for the buffer */
 	if (!buf)
 		goto end;
-
 	printf("%s", prompt);
-	/*read character character until hitting EOF or a new line*/
 	while (1)
 	{
 		ch = getchar();
@@ -63,12 +62,9 @@ void readline(char *name, char *prompt, char **line, size_t *size)
 			else
 				exit(EXIT_SUCCESS); /* exit shell on EOF if buffer is empty */
 		}
-
 		buf[ibuf] = ch == '\n' ? 0 : ch;
-		/* end buffer on newline char */
-		if (!buf[ibuf])
+		if (!buf[ibuf++]) /* end buffer on newline char */
 			break;
-		ibuf++;
 
 		/*
 		 * if the buffer iterator exceeded the buffer size
@@ -83,8 +79,7 @@ void readline(char *name, char *prompt, char **line, size_t *size)
 		}
 	}
 	/* set line to the buffer pointer and set the line size */
-	*line = buf;
-	*size = ibuf;
+	*line = buf, *size = ibuf;
 	return;
 end:
 	fprintf(stderr, "%s: Memory allocation error\n", name);

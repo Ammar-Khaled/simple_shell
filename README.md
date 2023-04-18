@@ -20,6 +20,16 @@ $ ./hsh "/bin/ls"
 $ echo "/bin/ls" | hsh
 ```
 
+## Builtin Commands
+
+### exit
+
+- To exit the shell
+
+### env
+
+- To print all environment variables
+
 ## Build
 
 `gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh`
