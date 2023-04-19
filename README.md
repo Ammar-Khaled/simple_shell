@@ -22,9 +22,9 @@ $ echo "/bin/ls" | hsh
 
 ## Builtin Commands
 
-### exit
+### exit [status]
 
-- To exit the shell
+- To exit the shell with optional status code, defaults to zero
 
 ### env [variable_name] [variable_value]
 
