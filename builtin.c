@@ -55,6 +55,15 @@ int builtin_env(int argc, char **argv)
 	return (0);
 }
 
+/**
+ * builtin_cd - change current working directory
+ * @argc: number of arguments
+ * @argv: list of arguments
+ * Description:
+ * can cd to HOME to last working directory
+ *
+ * Return: status code
+ */
 int builtin_cd(int argc, char **argv)
 {
 	struct stat statbuf;

@@ -9,8 +9,6 @@
 
 /**
  * readline - prompt user for the whole command line
- * @name: the name of the shell
- * @prompt: the prompt string printed before every input
  * @line: pointer to the line cstring variable
  * @size: pointer to the line size variable
  */
@@ -97,7 +95,6 @@ end:
 
 /**
  * evaluate - evaluate a command line
- * @name: the shell's name
  * @args: the splitted command line
  *
  * Return: exit status of the command otherwise -1 on fail

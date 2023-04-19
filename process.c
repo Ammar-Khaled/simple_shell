@@ -24,6 +24,7 @@ char *cmdpath(char *cmd)
 	struct dirent *entry;
 
 	pathvar = getenv("PATH"); /* get the path env var */
+	pathvar = strdup(pathvar); /* duplicate to prevent modifying PATH */
 	if (!pathvar) /* if no PATH env var goto end */
 		goto end;
 	path = _strtok(pathvar, PATH_DELIM); /* get the first path token */
@@ -60,7 +61,6 @@ end:
 
 /**
  * execute - executes the exectable program files
- * @name: name of our program (required for error handling)
  * @cmd: array of strings contains the command and its arguments
  *
  * Return: exit status of child otherwise -1 on fail and prints error message
