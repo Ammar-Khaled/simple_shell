@@ -15,12 +15,12 @@
 void readline(char **line, size_t *size)
 {
 	int bufsize = BUFSIZE, ibuf = 0, ch;
-	char *buf;
+	char *buf, *prompt = getenv("PROMPT");
 
 	buf = malloc(bufsize * sizeof(char)); /* allocate one KB for the buffer */
 	if (!buf)
 		goto end;
-	printf("%s ", getenv("PROMPT"));
+	printf("%s ", !prompt ? "> " : prompt);
 	while (1)
 	{
 		ch = getchar();
@@ -64,8 +64,7 @@ end:
 char **splitline(char *line)
 {
 	unsigned int token_bufsize = TOKEN_BUFSIZE, i = 0;
-	char *token;
-	char **tokens;
+	char *token, **tokens;
 
 	tokens = malloc(token_bufsize * sizeof(char *));
 	if (!tokens)
@@ -105,6 +104,7 @@ int evaluate(char **args)
 	int i, argc, status;
 	command_t builtins[] = {
 		{"exit", builtin_exit}, {"env", builtin_env}, {"cd", builtin_cd},
+		{"setenv", builtin_setenv}, {"unsetenv", builtin_unsetenv},
 		{NULL, NULL}
 	};
 

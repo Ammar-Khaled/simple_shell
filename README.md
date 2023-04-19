@@ -26,13 +26,19 @@ $ echo "/bin/ls" | hsh
 
 - To exit the shell with optional status code, defaults to zero
 
-### env [variable_name] [variable_value]
+### env [variable_name]
 
 - To print all environment variables
 
 - Or provide one argument to print its value if exists
 
-- Or provide two arguments (name, value) to set and overwrite
+### setenv [variable_name] [variable_value]
+
+- To set or modify environment variable
+
+### unsetenv [variable_name]
+
+- To unset an exist environment variable
 
 ## Environment Variables
 

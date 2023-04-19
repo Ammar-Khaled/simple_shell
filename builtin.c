@@ -48,10 +48,57 @@ int builtin_env(int argc, char **argv)
 			printf("%s\n", *vars);
 	else if (argc == 2)
 		printf("%s=%s\n", argv[1], getenv(argv[1]));
-	else if (argc == 3)
-		setenv(argv[1], argv[2], 1);
 	else
-		fprintf(stderr, "Usage: env [name] [value]\n");
+		fprintf(stderr, "Usage: env [name]\n");
+	return (0);
+}
+
+/**
+ * builtin_setenv - set or modify exist environment variable
+ * @argc: number of arguments
+ * @argv: arguments list
+ *
+ * Return: exit status
+ */
+int builtin_setenv(int argc, char **argv)
+{
+	if (argc != 3)
+	{
+		fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
+		return (1);
+	}
+
+	setenv(argv[1], argv[2], 1);
+	return (0);
+}
+
+/**
+ * builtin_unsetenv - unsets an existing environment variables
+ * @argc: number of arguments
+ * @argv: arguments list
+ * Description:
+ * The variable to unset must be exist
+ *
+ * Return: exit status
+ */
+int builtin_unsetenv(int argc, char **argv)
+{
+	if (argc != 2)
+	{
+		fprintf(stderr, "Usage: unsetenv VARIABLE\n");
+		return (1);
+	}
+
+	if (!getenv(argv[1]))
+	{
+		fprintf(stderr,
+			"%s: 9: unsetenv: variable name '%s' is not exist\n",
+			getenv("SHELL_EXEC"),
+			argv[1]);
+		return (1);
+	}
+
+	setenv(argv[1], argv[2], 1);
 	return (0);
 }
 
@@ -92,7 +139,6 @@ int builtin_cd(int argc, char **argv)
 		perror("cd");
 		return (1);
 	}
-	else if (!S_ISDIR(statbuf.st_mode))
 	{
 		fprintf(stderr, "cd: The directory '%s' is not exist\n", path);
 		return (1);
