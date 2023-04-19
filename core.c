@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "core.h"
-#include "builtin.h"
-#include "process.h"
-#include "utils.h"
+#include "includes/core.h"
+#include "includes/builtin.h"
+#include "includes/process.h"
+#include "includes/utils.h"
 
 /**
  * readline - prompt user for the whole command line

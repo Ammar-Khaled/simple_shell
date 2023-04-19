@@ -6,8 +6,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-#include "process.h"
-#include "utils.h"
+#include "includes/process.h"
+#include "includes/utils.h"
 
 /**
  * cmdpath - search PATH env var for valid executable
