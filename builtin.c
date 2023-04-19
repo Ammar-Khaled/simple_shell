@@ -1,18 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "builtin.h"
 
 /**
  * builtin_exit - exit the program
  * @argc: number of arguments
  * @argv: list of arguments
- * @environ: list of environment variables
  * Description:
  * exits the shell with optional status code
  *
  * Return: status code
  */
-int builtin_exit(int argc, char **argv, char **environ __attribute__((unused)))
+int builtin_exit(int argc, char **argv)
 {
 	int status = 0;
 
@@ -31,17 +31,17 @@ int builtin_exit(int argc, char **argv, char **environ __attribute__((unused)))
  * builtin_env - prints environment variables
  * @argc: number of arguments
  * @argv: list of arguments
- * @environ: list of environment variables
  * Description:
  * prints the environment variables
  *
  * Return: status code
  */
 int builtin_env(int argc __attribute__((unused)),
-								char **argv __attribute__((unused)),
-								char **environ)
+								char **argv __attribute__((unused)))
 {
-	for (; *environ; environ++)
-		printf("%s\n", *environ);
+	char **vars = environ;
+
+	for (; *vars; vars++)
+		printf("%s\n", *vars);
 	return (0);
 }

@@ -128,17 +128,15 @@ end:
  * evaluate - evaluate a command line
  * @name: the shell's name
  * @args: the splitted command line
- * @environ: the environment variables list
  *
  * Return: exit status of the command otherwise -1 on fail
  */
-int evaluate(char *name, char **args, char **environ)
+int evaluate(char *name, char **args)
 {
 	int i, argc;
-	/* define builtin commands */
 	command_t builtins[] = {
-		{ "exit", builtin_exit }, { "env", builtin_env },
-		{ NULL, NULL }
+		{"exit", builtin_exit}, {"env", builtin_env},
+		{NULL, NULL}
 	};
 
 	/* count number of elements in args */
@@ -148,7 +146,7 @@ int evaluate(char *name, char **args, char **environ)
 	/* check if command is builtin and execute if exists */
 	for (i = 0; builtins[i].name; i++)
 		if (!strcmp(builtins[i].name, args[0]))
-			return (builtins[i].cmd(argc, args, environ));
+			return (builtins[i].cmd(argc, args));
 
 	/* if not a builtin command try to execute system executable file */
 	return (execute(name, args, environ));
