@@ -3,6 +3,6 @@
 
 #define PATH_DELIM ":"
 
-int execute(const char *name, char **cmd);
+int execute(char **cmd);
 
 #endif

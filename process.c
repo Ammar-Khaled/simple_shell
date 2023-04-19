@@ -65,19 +65,19 @@ end:
  *
  * Return: exit status of child otherwise -1 on fail and prints error message
  */
-int execute(const char *name, char **cmd)
+int execute(char **cmd)
 {
 	char *path;
 	pid_t pid;
 	int wstatus;
 
-	if (!name || !cmd || !environ)
+	if (!cmd || !environ)
 		return (-1);
 	/* use cmd if it is a valid path otherwise search for its executable path */
 	path = access(cmd[0], F_OK | X_OK) != -1 ? strdup(cmd[0]) : cmdpath(cmd[0]);
 	if (!path)
 	{
-		dprintf(STDERR_FILENO, "%s: 1: %s: not found!\n", name, cmd[0]);
+		fprintf(stderr, "%s: 1: %s: not found!\n", getenv("SHELL_EXEC"), cmd[0]);
 		return (-1);
 	}
 
@@ -85,12 +85,12 @@ int execute(const char *name, char **cmd)
 	if (!pid)
 	{
 		execve(path, cmd, environ);
-		perror(name);
+		perror(getenv("SHELL_EXEC"));
 		exit(EXIT_FAILURE);
 	}
 	else if (pid == -1)
 	{
-		perror(name);
+		perror(getenv("SHELL_EXEC"));
 		return (-1);
 	}
 

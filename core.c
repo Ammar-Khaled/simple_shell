@@ -43,7 +43,7 @@ char *_strtok(char *str, const char *delim)
  * @line: pointer to the line cstring variable
  * @size: pointer to the line size variable
  */
-void readline(char *name, char *prompt, char **line, size_t *size)
+void readline(char *prompt, char **line, size_t *size)
 {
 	int bufsize = BUFSIZE, ibuf = 0, ch;
 	char *buf;
@@ -82,7 +82,7 @@ void readline(char *name, char *prompt, char **line, size_t *size)
 	*line = buf, *size = ibuf;
 	return;
 end:
-	fprintf(stderr, "%s: Memory allocation error\n", name);
+	fprintf(stderr, "%s: Memory allocation error\n", getenv("SHELL_EXEC"));
 	exit(EXIT_FAILURE);
 }
 
@@ -131,7 +131,7 @@ end:
  *
  * Return: exit status of the command otherwise -1 on fail
  */
-int evaluate(char *name, char **args)
+int evaluate(char **args)
 {
 	int i, argc;
 	command_t builtins[] = {
@@ -149,5 +149,5 @@ int evaluate(char *name, char **args)
 			return (builtins[i].cmd(argc, args));
 
 	/* if not a builtin command try to execute system executable file */
-	return (execute(name, args));
+	return (execute(args));
 }

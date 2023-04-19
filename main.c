@@ -12,19 +12,22 @@
  */
 int main(int argc, char **argv)
 {
-	char *name = argv[0];
 	size_t linesize;
 	char *lineptr;
 	char **args;
 
+	/* set shell name */
+	putenv("SHELL=hsh");
+	setenv("SHELL_EXEC", argv[0], 1);
+
 	if (argc > 1)
-		exit(evaluate(name, argv));
+		exit(evaluate(argv));
 begin:
-	readline(name, "> ", &lineptr, &linesize);
+	readline("> ", &lineptr, &linesize);
 	if (linesize == 0)
 		goto begin;
 	args = splitline(lineptr);
-	evaluate(name, args);
+	evaluate(args);
 	free(lineptr);
 	goto begin;
 }

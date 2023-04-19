@@ -9,8 +9,8 @@
 extern char **environ;
 
 char *_strtok(char *str, const char *delim);
-void readline(char *name, char *prompt, char **line, size_t *size);
+void readline(char *prompt, char **line, size_t *size);
 char **splitline(char *line);
-int evaluate(char *name, char **args);
+int evaluate(char **args);
 
 #endif
