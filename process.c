@@ -7,7 +7,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include "process.h"
-#include "core.h"
+#include "utils.h"
 
 /**
  * cmdpath - search PATH env var for valid executable

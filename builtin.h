@@ -14,6 +14,7 @@ typedef struct command_s
 
 int builtin_exit(int argc, char **argv);
 int builtin_env(int argc, char **argv);
+int builtin_cd(int argc, char **argv);
 
 /* define environment variables external variable */
 extern char **environ;

@@ -13,17 +13,17 @@
 int main(int argc, char **argv)
 {
 	size_t linesize;
-	char *lineptr;
-	char **args;
+	char *lineptr, **args;
 
-	/* set shell name */
+	/* set shell env vars */
 	putenv("SHELL=hsh");
+	putenv("PROMPT=>");
 	setenv("SHELL_EXEC", argv[0], 1);
 
 	if (argc > 1)
 		exit(evaluate(argv));
 begin:
-	readline("> ", &lineptr, &linesize);
+	readline(&lineptr, &linesize);
 	if (linesize == 0)
 		goto begin;
 	args = splitline(lineptr);

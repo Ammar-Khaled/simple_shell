@@ -1,5 +1,8 @@
+#include <linux/limits.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "builtin.h"
 
@@ -45,5 +48,50 @@ int builtin_env(int argc, char **argv)
 			printf("%s\n", *vars);
 	else if (argc == 2)
 		printf("%s=%s\n", argv[1], getenv(argv[1]));
+	else if (argc == 3)
+		setenv(argv[1], argv[2], 1);
+	else
+		fprintf(stderr, "Usage: env [name] [value]\n");
+	return (0);
+}
+
+int builtin_cd(int argc, char **argv)
+{
+	struct stat statbuf;
+	char cwd[PATH_MAX], *path;
+
+	if (argc > 2)
+	{
+		fprintf(stderr, "Usage: cd [path|-|~]\n");
+		return (1);
+	}
+	if (argc == 1)
+		path = getenv("HOME"); /* if no args set path to HOME */
+	else if (argc == 2)
+		path = argv[1]; /* get first arg as a path if exist */
+
+	if (!strncmp(path, "-", 1))
+		path = getenv("OLDPWD"); /* cd to last working directory */
+	else if (!strncmp(path, "~", 1))
+		path = getenv("HOME"); /* cd to HOME directory */
+
+	/* if no path or not exist then exit with failure */
+	if (!path)
+		return (1);
+	else if (stat(path, &statbuf) == -1)
+	{
+		perror("cd");
+		return (1);
+	}
+	else if (!S_ISDIR(statbuf.st_mode))
+	{
+		fprintf(stderr, "cd: The directory '%s' is not exist\n", path);
+		return (1);
+	}
+
+	setenv("OLDPWD", getenv("PWD"), 1); /* update OLDPWD env var */
+	chdir(path); /* change current working directory */
+	if (getcwd(cwd, PATH_MAX))
+		setenv("PWD", cwd, 1); /* update PWD env var */
 	return (0);
 }

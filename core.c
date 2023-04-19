@@ -1,40 +1,11 @@
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "core.h"
 #include "builtin.h"
 #include "process.h"
-
-/**
- * _strtok - strtok implementation
- * @str: string to split
- * @delim: characters to be used as a delimeter
- *
- * Return: pointer to the start of the token in @str
- */
-char *_strtok(char *str, const char *delim)
-{
-	char *start, *end;
-	static char *cache;
-
-	if (str)
-		cache = str;
-	if (!cache)
-		return (NULL);
-
-	start = cache;
-	end = strpbrk(cache, delim);
-	if (end)
-	{
-		*end = 0;
-		cache = end + 1;
-	}
-	else
-	{
-		cache = NULL;
-	}
-	return (start);
-}
+#include "utils.h"
 
 /**
  * readline - prompt user for the whole command line
@@ -43,7 +14,7 @@ char *_strtok(char *str, const char *delim)
  * @line: pointer to the line cstring variable
  * @size: pointer to the line size variable
  */
-void readline(char *prompt, char **line, size_t *size)
+void readline(char **line, size_t *size)
 {
 	int bufsize = BUFSIZE, ibuf = 0, ch;
 	char *buf;
@@ -51,7 +22,7 @@ void readline(char *prompt, char **line, size_t *size)
 	buf = malloc(bufsize * sizeof(char)); /* allocate one KB for the buffer */
 	if (!buf)
 		goto end;
-	printf("%s", prompt);
+	printf("%s ", getenv("PROMPT"));
 	while (1)
 	{
 		ch = getchar();
@@ -133,9 +104,10 @@ end:
  */
 int evaluate(char **args)
 {
-	int i, argc;
+	char statusc[PATH_MAX];
+	int i, argc, status;
 	command_t builtins[] = {
-		{"exit", builtin_exit}, {"env", builtin_env},
+		{"exit", builtin_exit}, {"env", builtin_env}, {"cd", builtin_cd},
 		{NULL, NULL}
 	};
 
@@ -146,8 +118,16 @@ int evaluate(char **args)
 	/* check if command is builtin and execute if exists */
 	for (i = 0; builtins[i].name; i++)
 		if (!strcmp(builtins[i].name, args[0]))
-			return (builtins[i].cmd(argc, args));
+		{
+			status = builtins[i].cmd(argc, args);
+			goto end;
+		}
 
 	/* if not a builtin command try to execute system executable file */
-	return (execute(args));
+	status = execute(args);
+end:
+	snprintf(statusc, PATH_MAX, "%d", status);
+	setenv("status", statusc, 1);
+	setenv("?", statusc, 1);
+	return (status);
 }
