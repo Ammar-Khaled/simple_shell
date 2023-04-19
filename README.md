@@ -26,9 +26,11 @@ $ echo "/bin/ls" | hsh
 
 - To exit the shell
 
-### env
+### env [variable_name]
 
 - To print all environment variables
+
+- Or provide one argument to print its value if exists
 
 ## Build
 

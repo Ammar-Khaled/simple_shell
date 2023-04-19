@@ -36,12 +36,14 @@ int builtin_exit(int argc, char **argv)
  *
  * Return: status code
  */
-int builtin_env(int argc __attribute__((unused)),
-								char **argv __attribute__((unused)))
+int builtin_env(int argc, char **argv)
 {
 	char **vars = environ;
 
-	for (; *vars; vars++)
-		printf("%s\n", *vars);
+	if (argc == 1)
+		for (; *vars; vars++)
+			printf("%s\n", *vars);
+	else if (argc == 2)
+		printf("%s=%s\n", argv[1], getenv(argv[1]));
 	return (0);
 }
