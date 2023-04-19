@@ -149,5 +149,5 @@ int evaluate(char *name, char **args)
 			return (builtins[i].cmd(argc, args));
 
 	/* if not a builtin command try to execute system executable file */
-	return (execute(name, args, environ));
+	return (execute(name, args));
 }

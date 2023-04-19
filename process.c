@@ -1,3 +1,4 @@
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,80 +10,51 @@
 #include "core.h"
 
 /**
- * getpaths - reads the environment variables and returns the PATH var
- * @environ: the environment variables list
- *
- * Return: list of paths in the PATH env var otherwise NULL
- */
-char **getpaths(char *const *environ)
-{
-	size_t i = 0, size = 5;
-	char **paths = NULL, *token;
-
-	/* look for PATH env var */
-	for (; *environ; environ++)
-		if (!strncmp("PATH=", *environ, 5))
-			goto start;
-	return (NULL); /* return NULL if not found */
-start:
-	/* allocate memory for paths list */
-	paths = calloc(size, sizeof(void *));
-	if (!paths)
-		return (NULL);
-
-	token = _strtok((*environ) + 5, PATH_DELIM);
-	while (token)
-	{
-		paths[i++] = token;
-		if (i >= size)
-		{
-			size += 5;
-			paths = realloc(paths, size * sizeof(void *));
-			if (!paths)
-				return (NULL);
-		}
-		token = _strtok(NULL, PATH_DELIM);
-	}
-	paths[i] = NULL;
-	return (paths);
-}
-
-/**
- * cmdpath - search PATH env var for the fullpath of the command
+ * cmdpath - search PATH env var for valid executable
  * @cmd: the command name to look for
- * @environ: a list of the environment variables that contains PATH var
+ * Description:
+ * You need to free the returned fullpath if it is not NULL
  *
- * Return: the fullpath of the command executable if exist otherwise NULL
+ * Return: the fullpath of the executable if exist otherwise NULL
  */
-char *cmdpath(char *cmd, char *const *environ)
+char *cmdpath(char *cmd)
 {
-	char **paths = getpaths(environ), fullpath[FULLPATH_MAX];
+	char *pathvar, *path, fullpath[PATH_MAX];
 	DIR *dirp;
 	struct dirent *entry;
 
-	for (; paths && *paths; paths++)
+	pathvar = getenv("PATH"); /* get the path env var */
+	if (!pathvar) /* if no PATH env var goto end */
+		goto end;
+	path = _strtok(pathvar, PATH_DELIM); /* get the first path token */
+loop:
+	if (!path) /* if no first path or no paths any more goto end */
+		goto end;
+	dirp = opendir(path); /* try to open a path stream to get its entries */
+	if (!dirp) /* on fail goto next path token */
+		goto next_path_token;
+next_entry: /* get the next dir entry and check if it is a valid entry */
+	entry = readdir(dirp); /* get entry from the dir stream */
+	if (!entry) /* if not more dir entries goto the next path token */
+		goto next_path_token;
+	/* define the full file path as "{path_token}/{entry_name}" */
+	snprintf(fullpath, PATH_MAX, "%s/%s", path, entry->d_name);
+	/* check if the path is an exist regular file and executable */
+	if (access(fullpath, F_OK | X_OK) == -1)
+		goto next_entry; /* if invalid path then goto next entry */
+	/* check if the file has the same command name */
+	if (!strcmp(entry->d_name, cmd))
 	{
-		dirp = opendir(*paths);
-		if (!dirp)
-			continue;
-begin:
-		entry = readdir(dirp);
-		if (!entry)
-			goto end;
-
-		snprintf(fullpath, FULLPATH_MAX, "%s/%s", *paths, entry->d_name);
-		if (access(fullpath, F_OK | X_OK) == -1)
-			goto begin;
-		if (!strcmp(entry->d_name, cmd))
-		{
-			closedir(dirp);
-			return (strdup(fullpath));
-		}
-
-		goto begin;
-end:
-		closedir(dirp);
+		closedir(dirp); /* close currently opened dir stream */
+		return (strdup(fullpath)); /* return a duplicated fullpath */
 	}
+	goto next_entry; /* if invalid entry then goto next one */
+next_path_token:
+	if (dirp) /* close current dir stream if opened */
+		closedir(dirp);
+	path = _strtok(NULL, PATH_DELIM);
+	goto loop;
+end:
 	return (NULL);
 }
 
@@ -90,11 +62,10 @@ end:
  * execute - executes the exectable program files
  * @name: name of our program (required for error handling)
  * @cmd: array of strings contains the command and its arguments
- * @environ: environment
  *
  * Return: exit status of child otherwise -1 on fail and prints error message
  */
-int execute(const char *name, char **cmd, char *const *environ)
+int execute(const char *name, char **cmd)
 {
 	char *path;
 	pid_t pid;
@@ -102,11 +73,8 @@ int execute(const char *name, char **cmd, char *const *environ)
 
 	if (!name || !cmd || !environ)
 		return (-1);
-	/* use command if its path is valid otherwise search for its executable */
-	if (access(cmd[0], X_OK) != -1)
-		path = cmd[0];
-	else
-		path = cmdpath(cmd[0], environ);
+	/* use cmd if it is a valid path otherwise search for its executable path */
+	path = access(cmd[0], F_OK | X_OK) != -1 ? strdup(cmd[0]) : cmdpath(cmd[0]);
 	if (!path)
 	{
 		dprintf(STDERR_FILENO, "%s: 1: %s: not found!\n", name, cmd[0]);
@@ -126,6 +94,7 @@ int execute(const char *name, char **cmd, char *const *environ)
 		return (-1);
 	}
 
+	free(path);
 	do {
 		waitpid(pid, &wstatus, WUNTRACED);
 	} while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
