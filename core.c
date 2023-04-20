@@ -104,7 +104,7 @@ int evaluate(char **args)
 	int i, argc, status;
 	command_t builtins[] = {
 		{"exit", builtin_exit}, {"env", builtin_env}, {"cd", builtin_cd},
-		{"setenv", builtin_setenv}, {"unsetenv", builtin_unsetenv},
+		{"setenv", builtin_setenv}, {"unsetenv", builtin_unsetenv}, {"alias", builtin_alias},
 		{NULL, NULL}
 	};
 
