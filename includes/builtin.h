@@ -12,6 +12,18 @@ typedef struct command_s
 	int (*cmd)(int argc, char **argv);
 } command_t;
 
+/**
+ * Alias - struct for an alias
+ * @alias: the alias name
+ * @command: the actual corresponding command
+ */
+typedef struct alias
+{
+	char *alias_name;
+	char *command;
+	struct alias *next;
+} Alias;
+
 int builtin_exit(int argc, char **argv);
 int builtin_env(int argc, char **argv);
 int builtin_cd(int argc, char **argv);
