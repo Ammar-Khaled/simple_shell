@@ -40,6 +40,10 @@ $ echo "/bin/ls" | hsh
 
 - To unset an exist environment variable
 
+### alias [name[='value'] ...]
+
+- Make an alias name for long commands
+
 ## Environment Variables
 
 - PWD: current working directory
