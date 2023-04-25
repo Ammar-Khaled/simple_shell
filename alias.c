@@ -76,6 +76,7 @@ void set_alias(char *name, char *command, Alias *alias_list)
 				strcpy(cur_node->command, command);
 				break;
 			}
+			cur_node = cur_node->next;
 		}
 	}
 }
