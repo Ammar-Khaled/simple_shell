@@ -1,29 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "builtin.h"
 
-/**
- * Alias - struct for an alias
- * @alias: the alias name
- * @command: the actual corresponding command
- */
-typedef struct alias
-{
-	char *alias_name;
-	char *command;
-	struct alias *next;
-} Alias;
-
-/* Define a global pointer to the head of the alias linked list */
-Alias *alias_list = NULL;
 
 /**
  * print_alias_list - traverse over the global list
  * of aliases printing them in the form name='value'
+ * @alias_list: head of alias list
  */
-void print_alias_list(void)
+void print_alias_list(Alias *alias_list)
 {
 	Alias *cur_node = alias_list;
+
 	while (cur_node)
 	{
 		printf("%s='%s'\n", cur_node->alias_name, cur_node->command);
@@ -34,13 +23,14 @@ void print_alias_list(void)
 /**
  * lookup_alias - searches for an alias in the alias list
  * @name: alias_name
- *
+ * @alias_list: head of alias list
  * Return: the corresponding command for the passed alias name
  * or NULL if the alias is not found
  */
-char *lookup_alias(char *name)
+char *lookup_alias(char *name, Alias *alias_list)
 {
 	Alias *cur_node = alias_list;
+
 	while (cur_node)
 	{
 		if (strcmp(cur_node->alias_name, name) == 0)
@@ -58,13 +48,14 @@ char *lookup_alias(char *name)
  * If name is already an alias, replaces its value with `command`
  * @name: alias name
  * @command: corresponding command
+ * @alias_list: head of alias list
  */
-void set_alias(char *name, char *command)
+void set_alias(char *name, char *command, Alias *alias_list)
 {
 	Alias *cur_node, *new;
 
 	cur_node = alias_list;
-	if (!lookup_alias(name))
+	if (!lookup_alias(name, alias_list))
 	{
 		/* add new alias at the beginning of the list*/
 		new = malloc(sizeof(Alias));
@@ -100,10 +91,12 @@ int builtin_alias(int argc, char **argv)
 {
 	int i, j, new_alias;
 	char *name, *cmd;
+	/* Define a pointer to the head of the alias linked list */
+	static Alias *alias_list;
 
 	if (argc == 1)
 	{
-		print_alias_list();
+		print_alias_list(alias_list);
 	}
 	else
 	{
@@ -117,16 +110,16 @@ int builtin_alias(int argc, char **argv)
 					new_alias = 1;
 					name = strtok(argv[j], "=");
 					cmd = strtok(NULL, "");
-					set_alias(name, cmd);
+					set_alias(name, cmd, alias_list);
 				}
 			}
 			if (!new_alias)
 			{
 				/* print this alias*/
-				if (!lookup_alias(argv[j]))
+				if (!lookup_alias(argv[j], alias_list))
 					printf("alias: %s: not found\n", argv[j]);
 				else
-					printf("%s=%s\n", argv[j], lookup_alias(argv[j]));
+					printf("%s=%s\n", argv[j], lookup_alias(argv[j], alias_list));
 			}
 		}
 
