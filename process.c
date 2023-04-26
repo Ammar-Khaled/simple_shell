@@ -1,7 +1,6 @@
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -24,7 +23,7 @@ char *cmdpath(char *cmd)
 	struct dirent *entry;
 
 	pathvar = getenv("PATH"); /* get the path env var */
-	pathvar = strdup(pathvar); /* duplicate to prevent modifying PATH */
+	pathvar = _strdup(pathvar); /* duplicate to prevent modifying PATH */
 	if (!pathvar) /* if no PATH env var goto end */
 		goto end;
 	path = _strtok(pathvar, PATH_DELIM); /* get the first path token */
@@ -44,10 +43,10 @@ next_entry: /* get the next dir entry and check if it is a valid entry */
 	if (access(fullpath, F_OK | X_OK) == -1)
 		goto next_entry; /* if invalid path then goto next entry */
 	/* check if the file has the same command name */
-	if (!strcmp(entry->d_name, cmd))
+	if (!_strcmp(entry->d_name, cmd))
 	{
 		closedir(dirp); /* close currently opened dir stream */
-		return (strdup(fullpath)); /* return a duplicated fullpath */
+		return (_strdup(fullpath)); /* return a duplicated fullpath */
 	}
 	goto next_entry; /* if invalid entry then goto next one */
 next_path_token:
@@ -74,7 +73,7 @@ int execute(char **cmd)
 	if (!cmd || !environ)
 		return (-1);
 	/* use cmd if it is a valid path otherwise search for its executable path */
-	path = access(cmd[0], F_OK | X_OK) != -1 ? strdup(cmd[0]) : cmdpath(cmd[0]);
+	path = access(cmd[0], F_OK | X_OK) != -1 ? _strdup(cmd[0]) : cmdpath(cmd[0]);
 	if (!path)
 	{
 		fprintf(stderr, "%s: 1: %s: not found!\n", getenv("SHELL_EXEC"), cmd[0]);

@@ -1,7 +1,7 @@
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 #include "includes/core.h"
 #include "includes/builtin.h"
 #include "includes/process.h"
@@ -20,7 +20,8 @@ void readline(char **line, size_t *size)
 	buf = malloc(bufsize * sizeof(char)); /* allocate one KB for the buffer */
 	if (!buf)
 		goto end;
-	printf("%s ", !prompt ? "> " : prompt);
+	if (isatty(STDIN_FILENO))
+		printf("%s ", !prompt ? "> " : prompt);
 	while (1)
 	{
 		ch = getchar();
@@ -115,7 +116,7 @@ int evaluate(char **args)
 
 	/* check if command is builtin and execute if exists */
 	for (i = 0; builtins[i].name; i++)
-		if (!strcmp(builtins[i].name, args[0]))
+		if (!_strcmp(builtins[i].name, args[0]))
 		{
 			status = builtins[i].cmd(argc, args);
 			goto end;

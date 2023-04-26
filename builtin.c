@@ -2,9 +2,9 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include "includes/builtin.h"
+#include "includes/utils.h"
 
 /**
  * builtin_exit - exit the program
@@ -126,9 +126,9 @@ int builtin_cd(int argc, char **argv)
 	else if (argc == 2)
 		path = argv[1]; /* get first arg as a path if exist */
 
-	if (!strncmp(path, "-", 1))
+	if (!_strncmp(path, "-", 1))
 		path = getenv("OLDPWD"); /* cd to last working directory */
-	else if (!strncmp(path, "~", 1))
+	else if (!_strncmp(path, "~", 1))
 		path = getenv("HOME"); /* cd to HOME directory */
 
 	/* if no path or not exist then exit with failure */

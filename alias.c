@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "includes/builtin.h"
+#include "includes/utils.h"
 
 
 /**
@@ -33,7 +33,7 @@ char *lookup_alias(char *name, Alias *alias_list)
 
 	while (cur_node)
 	{
-		if (strcmp(cur_node->alias_name, name) == 0)
+		if (_strcmp(cur_node->alias_name, name) == 0)
 		{
 			return (cur_node->command);
 		}
@@ -61,8 +61,8 @@ void set_alias(char *name, char *command, Alias *alias_list)
 		new = malloc(sizeof(Alias));
 		if (!new)
 			return;
-		strcpy(new->alias_name, name);
-		strcpy(new->command, command);
+		_strcpy(new->alias_name, name);
+		_strcpy(new->command, command);
 		new->next = alias_list;
 		alias_list = new;
 	}
@@ -71,9 +71,9 @@ void set_alias(char *name, char *command, Alias *alias_list)
 		/* set new value for existing alias */
 		while (cur_node)
 		{
-			if (strcmp(cur_node->alias_name, name) == 0)
+			if (_strcmp(cur_node->alias_name, name) == 0)
 			{
-				strcpy(cur_node->command, command);
+				_strcpy(cur_node->command, command);
 				break;
 			}
 			cur_node = cur_node->next;
@@ -109,8 +109,8 @@ int builtin_alias(int argc, char **argv)
 				if (argv[j][i] == '=')
 				{
 					new_alias = 1;
-					name = strtok(argv[j], "=");
-					cmd = strtok(NULL, "");
+					name = _strtok(argv[j], "=");
+					cmd = _strtok(NULL, "");
 					set_alias(name, cmd, alias_list);
 				}
 			}
