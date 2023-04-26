@@ -1,5 +1,9 @@
 # Simple Shell
 
+## Build
+
+`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh`
+
 ## Usage
 
 - interactive mode
@@ -57,6 +61,11 @@ $ echo "/bin/ls" | hsh
 - status: the last process exist status
 - ?: shorthand for --status--
 
-## Build
+## Tests
 
-`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh`
+### Utils
+
+- test all implemented cstring functions
+
+`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -g utils* tests/
+utils.c && ./a.out`

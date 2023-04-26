@@ -1,6 +1,41 @@
 #include "includes/utils.h"
 
 /**
+ * _strlen - calculate the length of string
+ * @str: the string
+ *
+ * Return: the string length otherwise zero
+ */
+size_t _strlen(char *str)
+{
+	size_t n;
+
+	if (!str)
+		return (0);
+	for (n = 0; *str; str++, n++)
+		;
+	return (n);
+
+}
+
+/**
+ * _strcmp - compare strings
+ * @s1: first string
+ * @s2: second string
+ * Description:
+ * if zero then both are equal otherwise
+ * if positive @s1 is greater than @s2 finally if negative @s2 > @s1
+ *
+ * Return: zero if both are equal or +ve if @s1 > @s2; -ve if @s2 > @s1
+ */
+int _strcmp(char *s1, char *s2)
+{
+	while (*s1 && *s2 && (*s1 == *s2))
+		s1++, s2++;
+	return (*s1 - *s2);
+}
+
+/**
  * _strchr - search for character in string
  * @str: string to search in
  * @c: character to search for
