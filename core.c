@@ -21,7 +21,7 @@ void readline(char **line, size_t *size)
 	if (!buf)
 		goto end;
 	if (isatty(STDIN_FILENO))
-		printf("%s ", !prompt ? "> " : prompt);
+		printf("%s ", !prompt ? "$ " : prompt);
 	while (1)
 	{
 		ch = getchar();
