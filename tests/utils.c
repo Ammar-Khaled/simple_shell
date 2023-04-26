@@ -62,6 +62,28 @@ int main() {
 	printf("Print Family:\n");
 	printo("5 + 5 = ");
 	printuo(10);
+	printo("\n\n");
+
+	printo("Test custom realloc:\n");
+	s1 = malloc(3);
+	if (!s1) {
+		fprintf(stderr, "failed to allocate memory");
+		return 1;
+	}
+	s1[0] = 'h';
+	s1[1] = 'i';
+	s1[2] = 0;
+	printo(s1);
+	printo("\n");
+
+	s1 = _realloc(s1, 3, 4);
+	if (!s1) {
+		fprintf(stderr, "failed to reallocate memory");
+		return 1;
+	}
+	s1[2] = '!';
+	s1[3] = 0;
+	printo(s1);
 	printo("\n");
 
 	return 0;

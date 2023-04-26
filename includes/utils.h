@@ -24,4 +24,6 @@ ssize_t printuo(unsigned long num);
 int number_converter(char *str, unsigned long value, int base);
 
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+int min(int a, int b);
+
 #endif

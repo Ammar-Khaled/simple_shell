@@ -67,5 +67,5 @@ $ echo "/bin/ls" | hsh
 
 - test all implemented cstring functions
 
-`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -g utils* tests/
+`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -g utils* _realloc.c tests/
 utils.c && ./a.out`
