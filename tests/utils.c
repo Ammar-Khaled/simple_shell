@@ -35,18 +35,34 @@ int main() {
 		return 1;
 	}
 	printf("strcpy: [%s] >> [%s]\n\n", s3, s2);
-	
+
+	/* test strchr */
 	printf("strchr(e): hello => %s\n", _strchr("hello", 'e'));
 	printf("strchr(a): hello => %s\n\n", _strchr("hello", 'a'));
 
+	/* test strspn */
 	printf("strspn(space): [hello world] => %lu\n", _strspn("hello world", " "));
 	printf("strspn(space): [     hello] => %lu\n\n", _strspn("     hello", " "));
 	
+	/* test strtok */
 	printf("strtok(space): hello world\n");
 	s2 = _strtok(word, " ");
 	while(s2) {
 		printf("[%s]\n", s2);
 		s2 = _strtok(NULL, " ");
 	}
+	putchar(10);
+
+	/* test strrev */
+	printf("strrev: [%s] => [", word);
+	_strrev(word, 5);
+	printf("%s]\n\n", word);
+
+	/* test print family */
+	printf("Print Family:\n");
+	printo("5 + 5 = ");
+	printuo(10);
+	printo("\n");
+
 	return 0;
 }

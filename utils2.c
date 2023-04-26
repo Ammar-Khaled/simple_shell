@@ -65,3 +65,17 @@ int _strncmp(char *s1, char *s2, size_t nbytes)
 	}
 	return (d);
 }
+
+/**
+ * _strrev - reverse array of characters of length @len
+ * @str: reference to the characters array
+ * @len: the size of the array
+ */
+void _strrev(char *str, int len)
+{
+	char *ptr;
+
+	for (ptr = str + len - 1; str < ptr; str++, ptr--)
+		/* swap *str with *ptr */
+		*str ^= *ptr, *ptr ^= *str, *str ^= *ptr;
+}
