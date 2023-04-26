@@ -13,9 +13,10 @@ typedef struct command_s
 } command_t;
 
 /**
- * Alias - struct for an alias
- * @alias: the alias name
+ * struct alias - a linked list element for the alias commands
+ * @alias_name: the alias command name
  * @command: the actual corresponding command
+ * @next: pointer to the next alias element in the linked list
  */
 typedef struct alias
 {

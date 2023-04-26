@@ -139,6 +139,7 @@ int builtin_cd(int argc, char **argv)
 		perror("cd");
 		return (1);
 	}
+	else if (!S_ISDIR(statbuf.st_mode))
 	{
 		fprintf(stderr, "cd: The directory '%s' is not exist\n", path);
 		return (1);

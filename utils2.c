@@ -42,7 +42,7 @@ char *_strcpy(char *dest, char *src)
 }
 
 /**
- * _strcmp - compare @nbytes of 2 strings
+ * _strncmp - compare @nbytes of 2 strings
  * @s1: first string
  * @s2: second string
  * @nbytes: number of bytes to be compared
@@ -60,7 +60,7 @@ int _strncmp(char *s1, char *s2, size_t nbytes)
 	{
 		d = *s1 - *s2;
 		if (d || !*s1 || !*s2)
-			return d;
+			return (d);
 		s1++, s2++, nbytes--;
 	}
 	return (d);
