@@ -42,8 +42,8 @@ void readline(char **line, size_t *size)
 		 */
 		if (ibuf >= bufsize)
 		{
+			buf = _realloc(buf, bufsize, (bufsize + BUFSIZE) * sizeof(char));
 			bufsize += BUFSIZE;
-			buf = _realloc(buf, bufsize * sizeof(char));
 			if (!buf)
 				goto end;
 		}
@@ -78,8 +78,10 @@ char **splitline(char *line)
 		/*if needed reallocate the buffer with the size increased by 1KB */
 		if (i > token_bufsize - 1)
 		{
+			tokens = _realloc(tokens,
+				token_bufsize,
+				(token_bufsize + TOKEN_BUFSIZE) * sizeof(char *));
 			token_bufsize += TOKEN_BUFSIZE;
-			tokens = _realloc(tokens, token_bufsize * sizeof(char *));
 			if (!tokens)
 				goto end;
 		}
