@@ -1,7 +1,5 @@
 #include <stdlib.h>
 
-#include <string.h>
-
 /**
  * min - find min of two nums
  * @a: first num
@@ -14,6 +12,42 @@ int min(int a, int b)
 }
 
 /**
+ * _memset - set memory piece of memory to byte
+ * @ptr: the starting pointer
+ * @byte: the byte value to set
+ * @nbytes: the number of bytes to be written starting for @ptr
+ *
+ * Return: @ptr otherwise NULL on fail
+ */
+void *_memset(void *ptr, char byte, unsigned int nbytes)
+{
+	if (!ptr)
+		return (NULL);
+	for (; nbytes; nbytes--)
+		((char *)ptr)[nbytes - 1] = byte;
+	return (ptr);
+}
+
+
+/**
+ * _memcpy - copy @nbytes bytes from @src to @dest
+ * @dest: pointer to start writting to
+ * @src: pointer to start reading from
+ * @nbytes: number of bytes to be copied
+ *
+ * Return: @dest on success otherwise NULL on fail
+ */
+void *_memcpy(void *dest, void *src, unsigned int nbytes)
+{
+	void *org = dest;
+	size_t i;
+
+	for (i = 0; i < nbytes; i++)
+		((char *)dest)[i] = ((char *)src)[i];
+	return (org);
+}
+
+/**
  * _realloc - reallocates a memory block using malloc and free
  * @ptr:	a pointer to the memory previously allocated with a call to malloc:
  * malloc(old_size).
@@ -23,7 +57,7 @@ int min(int a, int b)
  */
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
-	void *tmp;
+	void *newptr;
 
 	if (ptr == NULL)
 		return (malloc(new_size));
@@ -34,8 +68,14 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 	}
 	if (old_size == new_size)
 		return (ptr);
-	tmp = malloc(new_size);
-	memcpy(tmp, ptr, min(old_size, new_size));
+	newptr = malloc(new_size);
+	if (!newptr)
+		goto kill;
+	new_size = min(old_size, new_size);
+	_memcpy(newptr, ptr, min(old_size, new_size));
 	free(ptr);
-	return (tmp);
+	return (newptr);
+kill:
+	free(ptr);
+	return (NULL);
 }

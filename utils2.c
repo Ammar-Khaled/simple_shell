@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 /**
- * _strdup - duplicate cstring in new allocated memory
+ * _strdup - copy cstring into a new allocated memory
  * @str: pointer to the cstring
  *
  * Return: pointer of the new allocated memory otherwise NULL
@@ -19,6 +19,26 @@ char *_strdup(char *str)
 	if (!ptr)
 		return (NULL);
 	ptr = _strcpy(ptr, str);
+	return (ptr);
+}
+
+/**
+ * _strndup - copy @nbytes from cstring into a new allocated memory
+ * @str: pointer to the cstring
+ * @nbytes: number of bytes to copy
+ *
+ * Return: pointer of the new allocated memory otherwise NULL
+ */
+char *_strndup(char *str, size_t nbytes)
+{
+	char *ptr;
+
+	if (!str || !nbytes)
+		return (NULL);
+	ptr = malloc(nbytes);
+	if (!ptr)
+		return (NULL);
+	_memcpy(ptr, str, nbytes);
 	return (ptr);
 }
 

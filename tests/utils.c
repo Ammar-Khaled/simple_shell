@@ -1,9 +1,12 @@
 #include "../includes/utils.h"
+#include "../includes/env.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 int main() {
+	extern char **environ;
 	char *s1 = "hello", *s2, s3[] = "abc", word[] = "hello world";
+	envar var;
 	size_t size;
 
 	/* test strlen */
@@ -22,6 +25,12 @@ int main() {
 	/* test strdup */
 	s2 = _strdup(s1);
 	printf("strdup:\n%s\n%s\n\n", s1, s2);
+	free(s2);
+
+	/* test strndup */
+	s2 = _strndup(s1, 4);
+	s2[3] = 0;
+	printf("strndup: %s\n\n", s2);
 	free(s2);
 
 	/* test strcpy */
@@ -60,31 +69,62 @@ int main() {
 
 	/* test print family */
 	printf("Print Family:\n");
-	printo("5 + 5 = ");
-	printuo(10);
-	printo("\n\n");
+	printo("5 + 5 = ", 0);
+	printuo(10, 2); /* print 10 as cstring and 2 new lines */
 
-	printo("Test custom realloc:\n");
+	printo("Test custom realloc:", 1);
 	s1 = malloc(3);
 	if (!s1) {
-		fprintf(stderr, "failed to allocate memory");
+		fprintf(stderr, "failed to allocate memory\n");
 		return 1;
 	}
 	s1[0] = 'h';
 	s1[1] = 'i';
 	s1[2] = 0;
-	printo(s1);
-	printo("\n");
+	printo(s1, 1);
 
 	s1 = _realloc(s1, 3, 4);
 	if (!s1) {
-		fprintf(stderr, "failed to reallocate memory");
+		fprintf(stderr, "failed to reallocate memory\n");
 		return 1;
 	}
 	s1[2] = '!';
 	s1[3] = 0;
-	printo(s1);
-	printo("\n");
+	printo(s1, 2);
+
+	/* test environment variables manager */
+	envman_init(environ);
+
+	printo("Test ENV:", 1);
+	var = envman_loop(1);
+	while (var) {
+		printo(var->name, 0);
+		printo("=", 0);
+		printo(var->value, 1);
+		var = envman_loop(0);
+	}
+
+	printo(NULL, 1);
+	printo("Test ENV set, get:", 1);
+	printo("HOME: ", 0);
+	printo(envman_value("HOME"), 1);
+
+	printo("MY_NAME: ", 0);
+	printo("before(", 0);
+	printo(envman_value("MY_NAME"), 0);
+	envman_set("MY_NAME", "FADI");
+	printo("), after(", 0);
+	printo(envman_value("MY_NAME"), 0);
+	envman_set("MY_NAME", NULL);
+	printo("), after delete(", 0);
+	printo(envman_value("MY_NAME"), 0);
+	printo(")", 2);
+
+	printo("First var_name: ", 0);
+	var = envman_global(NULL, 0);
+	printo(var->name, 2);
+
+	envman_destroy();
 
 	return 0;
 }
