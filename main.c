@@ -1,6 +1,7 @@
 #include "includes/main.h"
 #include "includes/string.h"
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/wait.h>
@@ -26,7 +27,7 @@ int execute(char *filename, char *cmd, char **environ)
 	{
 		char *args[2] = { NULL, NULL };
 
-		args[0] = cmd;
+		args[0] = strncmp(cmd, "./", 2) ? cmd : cmd + 2;
 		execve(args[0], args, environ);
 		perror(filename);
 		return (-1);
