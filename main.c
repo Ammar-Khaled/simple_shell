@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <limits.h>
 
 /**
  * execute - execute command
@@ -16,6 +17,7 @@
  */
 int execute(char *filename, char *cmd, char **environ)
 {
+	char cmd_path[PATH_MAX], *res;
 	pid_t pid = 0;
 	int state = 0;
 
@@ -27,7 +29,13 @@ int execute(char *filename, char *cmd, char **environ)
 	{
 		char *args[2] = { NULL, NULL };
 
-		args[0] = strncmp(cmd, "./", 2) ? cmd : cmd + 2;
+		res = realpath(cmd, cmd_path);
+		if (!res)
+		{
+			fprintf(stderr, "%s: %d: %s: not found\n", filename, 1, cmd);
+			return (-1);
+		}
+		args[0] = cmd_path;
 		execve(args[0], args, environ);
 		perror(filename);
 		return (-1);
