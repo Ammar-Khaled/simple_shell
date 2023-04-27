@@ -20,6 +20,6 @@ struct execute_state
 int execute(char *filename, char *cmd, char **environ);
 
 void show_prompt(FILE *stream);
-int read_command(FILE *stream, char **linptr, size_t *size);
+int read_command(FILE *stream, char **lineptr, size_t *size, char *filename);
 
 #endif

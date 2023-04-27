@@ -23,10 +23,11 @@ void show_prompt(FILE *stream)
  * @stream: the stream to read the input from
  * @lineptr: pointer to the char *lineptr variable
  * @size: pointer to the input size variable
+ * @filename: the executable filename
  *
  * Return: +ve for readed chars, -1 for getline error, -2 for reading end
  */
-int read_command(FILE *stream, char **lineptr, size_t *size)
+int read_command(FILE *stream, char **lineptr, size_t *size, char *filename)
 {
 	size_t linesize = 0;
 	ssize_t nread = 0;
@@ -35,7 +36,12 @@ int read_command(FILE *stream, char **lineptr, size_t *size)
 	*size = nread >= 0 ? nread : 0;
 	if (nread > 0)
 		(*lineptr)[*size - 1] = 0;
-	else if (errno != EINVAL && errno != ENOMEM)
-		nread = READ_END;
+	else if (errno == EINVAL || errno == ENOMEM)
+	{
+		perror(filename);
+		return (-1);
+	}
+	else
+		return (READ_END);
 	return (nread);
 }

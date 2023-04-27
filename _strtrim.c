@@ -7,7 +7,7 @@
  * Return: NULL if the string is all spaces, otherwise returns
  * the string after trimming
  */
-char *_strtrim(char *str)
+char *_strtrim2(char *str)
 {
 	int len;
 	char *end;

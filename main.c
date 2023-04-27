@@ -1,4 +1,5 @@
 #include "includes/main.h"
+#include "includes/string.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -56,27 +57,26 @@ int execute(char *filename, char *cmd, char **environ)
  */
 int main(int argc __attribute__((unused)), char **argv, char **environ)
 {
-	char *lineptr = NULL;
+	char *lineptr = NULL, *trimedlineptr;
 	int err, exitstate = EXIT_SUCCESS;
 	size_t size = 0;
 
 loop:
 	show_prompt(stdin);
-	err = read_command(stdin, &lineptr, &size);
+	err = read_command(stdin, &lineptr, &size, argv[0]);
 	if (err < 0)
 	{
-		if (err == READ_FAIL)
-		{
+		if (err == -1)
 			exitstate = EXIT_FAILURE;
-			perror("hsh");
-		}
 		goto exit;
 	}
-	if (execute(argv[0], lineptr, environ))
+	trimedlineptr = _strtrim(lineptr);
+	if (execute(argv[0], trimedlineptr, environ))
 		goto exit;
 	free(lineptr);
 	goto loop;
 exit:
-	free(lineptr);
+	if (lineptr)
+		free(lineptr);
 	return (exitstate);
 }
