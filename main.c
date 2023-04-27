@@ -6,69 +6,77 @@
 
 /**
  * execute - execute command
+ * @filename: the shell file name
  * @cmd: the command to be executed
+ * @environ: the environment variables list
  *
  * Return: execute function state
  */
-struct execute_state execute(char *cmd)
+int execute(char *filename, char *cmd, char **environ)
 {
-	pid_t pid = -5;
-	char *args[2] = { NULL, NULL };
-	struct execute_state state = {0, 0};
-
-	args[0] = cmd;
+	pid_t pid = 0;
+	int state = 0;
 
 	if (!cmd)
-		state.execute = -2;
+		return (-1);
 
-	if (!state.execute)
-		pid = fork();
+	pid = fork();
 	if (!pid)
 	{
+		char *args[2] = { NULL, NULL };
+
+		args[0] = cmd;
 		execve(args[0], args, environ);
-		state.execute = -1;
+		perror(filename);
+		return (-1);
 	}
 	else if (pid == -1)
-		state.execute = -1;
+	{
+		perror(filename);
+		return (-1);
+	}
 	else if (pid > 0)
 	{
 		do {
-			waitpid(pid, &(state.process), WUNTRACED);
-		} while (!WIFEXITED(state.process) && !WIFSIGNALED(state.process));
-		state.process = WEXITSTATUS(state.process);
+			waitpid(pid, &(state), WUNTRACED);
+		} while (!WIFEXITED(state) && !WIFSIGNALED(state));
+		state = WEXITSTATUS(state);
 	}
-	return (state);
+	return (0);
+
 }
 
 /**
  * main - simple sh clone
+ * @argc: number of arguments
+ * @argv: the arguments list
+ * @environ: the environment variables list
  *
  * Return: exit state
  */
-int main(void)
+int main(int argc __attribute__((unused)), char **argv, char **environ)
 {
 	char *lineptr = NULL;
-	size_t line = 0, linesize = 0;
-	ssize_t nread = 0;
-	struct execute_state state;
+	int err, exitstate = EXIT_SUCCESS;
+	size_t size = 0;
 
 loop:
-	/* show prompt */
-	write(STDIN_FILENO, "$ ", 2);
-	line++;
-	nread = getline(&lineptr, &linesize, stdin);
-	if (nread == -1)
+	show_prompt(stdin);
+	err = read_command(stdin, &lineptr, &size);
+	if (err < 0)
 	{
-		perror("hsh");
-		return (1);
+		if (err == READ_FAIL)
+		{
+			exitstate = EXIT_FAILURE;
+			perror("hsh");
+		}
+		goto exit;
 	}
-	lineptr[nread - 1] = 0;
-	state = execute(lineptr);
-	if (state.execute == -1)
-		perror("hsh");
+	if (execute(argv[0], lineptr, environ))
+		goto exit;
 	free(lineptr);
-	linesize = 0;
 	goto loop;
-
-	return (0);
+exit:
+	free(lineptr);
+	return (exitstate);
 }
