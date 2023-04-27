@@ -101,3 +101,18 @@ loop_start:
 	if (!single)
 		goto loop_start;
 }
+
+/**
+ * envar_size - calculate the linked list size
+ * @var: the starting object
+ *
+ * Return: the size of the linked list
+ */
+size_t envar_size(envar var)
+{
+	size_t size = 0;
+
+	for (; var; size++, var = var->next)
+		;
+	return (size);
+}

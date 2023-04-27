@@ -65,7 +65,7 @@ $ echo "/bin/ls" | hsh
 
 ### Utils
 
-- test all implemented cstring functions, custom _realloc, envar manager
+- test all implemented cstring functions, custom realloc and envar manager
 
-`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -g utils* _realloc.c env*.c tests/
+`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -g utils* env*.c tests/
 utils.c && ./a.out`

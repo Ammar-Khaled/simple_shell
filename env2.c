@@ -89,3 +89,49 @@ update:
 		return (1);
 	}
 }
+
+/**
+ * envman_arr - create or free an array of variables
+ * @old_arr: array to clear from memory
+ *
+ * Return: the envvar cstring array otherwise NULL
+ */
+char **envman_arr(char **old_arr)
+{
+	envar var;
+	size_t i = 0, size;
+	char **arr = old_arr, **ptr;
+
+	if (arr)
+		goto kill;
+	size = envman_size();
+	var = envman_global(NULL, 0);
+	arr = malloc((size + 1) * sizeof(char *));
+	if (!arr)
+		return (NULL);
+	arr[size] = NULL;
+	for (i = 0; i < size; i++)
+	{
+		size_t nsize = var->name ? _strlen(var->name) : 0;
+		size_t vsize = var->value ? _strlen(var->value) : 0;
+		size_t size = nsize + vsize + 1;
+
+		arr[i] = malloc((size + 1) * sizeof(char));
+		if (!arr[i])
+			goto kill;
+		arr[i][nsize] = '=';
+		arr[i][size] = 0;
+		if (var->name)
+			_memcpy(arr[i], var->name, nsize);
+		if (var->value)
+			_memcpy(arr[i] + nsize + 1, var->value, vsize);
+		var = var->next;
+	}
+	return (arr);
+kill:
+	ptr = arr;
+	for (; *ptr; ptr++)
+		free(*ptr);
+	free(arr);
+	return (NULL);
+}

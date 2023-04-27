@@ -5,9 +5,9 @@
 
 int main() {
 	extern char **environ;
-	char *s1 = "hello", *s2, s3[] = "abc", word[] = "hello world";
+	char **arr, *s1 = "hello", *s2, s3[] = "abc", word[] = "hello world";
 	envar var;
-	size_t size;
+	size_t i, size;
 
 	/* test strlen */
 	size = _strlen(s1);
@@ -123,6 +123,16 @@ int main() {
 	printo("First var_name: ", 0);
 	var = envman_global(NULL, 0);
 	printo(var->name, 2);
+
+	printo("Size: ", 0);
+	size = envman_size();
+	printuo(size, 2);
+	
+	printo("VARS ARR:", 1);
+	arr = envman_arr(NULL); /* create array */
+	for (i = 0; arr[i]; i++)
+		printo(arr[i], 1);
+	envman_arr(arr); /* free array */
 
 	envman_destroy();
 

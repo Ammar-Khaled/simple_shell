@@ -1,3 +1,4 @@
+#include "includes/env.h"
 #include <stdlib.h>
 
 /**
@@ -78,4 +79,14 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 kill:
 	free(ptr);
 	return (NULL);
+}
+
+/**
+ * super_nova - free all global memory the exit with status
+ * @status: the exit status
+ */
+void super_nova(int status)
+{
+	envman_destroy();
+	exit(status);
 }

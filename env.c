@@ -98,3 +98,15 @@ envar envman_loop(char rewind)
 	hasval = cache ? 1 : -1;
 	return (var);
 }
+
+/**
+ * envman_size - calculate the size of the environment variables
+ *
+ * Return: number of the stored objects
+ */
+size_t envman_size(void)
+{
+	envar var = envman_global(NULL, 0);
+
+	return (envar_size(var));
+}

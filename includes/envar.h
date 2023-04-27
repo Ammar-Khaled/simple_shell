@@ -19,5 +19,6 @@ envar envar_create(char *name, size_t nsize, char *value, size_t vsize);
 void envar_free(envar var, char single);
 envar envar_last(envar var);
 envar *envar_push(envar *head, envar var);
+size_t envar_size(envar var);
 
 #endif
