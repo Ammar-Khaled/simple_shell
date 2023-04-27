@@ -1,6 +1,8 @@
 #include "includes/main.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -13,7 +15,7 @@ void show_prompt(FILE *stream)
 	int fd = fileno(stream);
 
 	if (isatty(fd))
-		write(STDOUT_FILENO, "$ ", 2);
+		write(fd, "$ ", 2);
 }
 
 /**
