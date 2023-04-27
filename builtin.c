@@ -1,9 +1,10 @@
-#include <linux/limits.h>
-#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <limits.h>
 #include <unistd.h>
 #include "includes/builtin.h"
+#include "includes/env.h"
 #include "includes/utils.h"
 
 /**
@@ -21,13 +22,15 @@ int builtin_exit(int argc, char **argv)
 
 	if (argc > 2)
 	{
-		dprintf(STDERR_FILENO, "Usage: %s [status]\n", argv[0]);
+		print(STDERR_FILENO, "Usage: ", 0);
+		print(STDERR_FILENO, argv[0], 0);
+		print(STDERR_FILENO, " [status]", 1);
 		return (1);
 	}
 
 	if (argc == 2)
 		status = atoi(argv[1]);
-	exit(status);
+	super_nova(status);
 }
 
 /**
@@ -41,15 +44,27 @@ int builtin_exit(int argc, char **argv)
  */
 int builtin_env(int argc, char **argv)
 {
-	char **vars = environ;
+	envar var;
 
 	if (argc == 1)
-		for (; *vars; vars++)
-			printf("%s\n", *vars);
+	{
+		var = envman_loop(1);
+		while (var)
+		{
+			printo(var->name, 0);
+			printo("=", 0);
+			printo(var->value, 1);
+			var = envman_loop(0);
+		}
+	}
 	else if (argc == 2)
-		printf("%s=%s\n", argv[1], getenv(argv[1]));
+	{
+		printo(argv[1], 0);
+		printo("=", 0);
+		printo(envman_value(argv[1]), 1);
+	}
 	else
-		fprintf(stderr, "Usage: env [name]\n");
+		print(STDERR_FILENO, "Usage: env [name]", 1);
 	return (0);
 }
 
@@ -64,11 +79,11 @@ int builtin_setenv(int argc, char **argv)
 {
 	if (argc != 3)
 	{
-		fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
+		print(STDERR_FILENO, "Usage: setenv VARIABLE VALUE", 1);
 		return (1);
 	}
 
-	setenv(argv[1], argv[2], 1);
+	envman_set(argv[1], argv[2]);
 	return (0);
 }
 
@@ -85,20 +100,20 @@ int builtin_unsetenv(int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		fprintf(stderr, "Usage: unsetenv VARIABLE\n");
+		print(STDERR_FILENO, "Usage: unsetenv VARIABLE", 1);
 		return (1);
 	}
 
-	if (!getenv(argv[1]))
+	if (!envman_value(argv[1]))
 	{
-		fprintf(stderr,
-			"%s: 9: unsetenv: variable name '%s' is not exist\n",
-			getenv("SHELL_EXEC"),
-			argv[1]);
+		print(STDERR_FILENO, envman_value("SHELL_EXEC"), 0);
+		print(STDERR_FILENO, ": 9: unsetenv: variable name '", 0);
+		print(STDERR_FILENO, argv[1], 0);
+		print(STDERR_FILENO, "' is not exist", 1);
 		return (1);
 	}
 
-	setenv(argv[1], argv[2], 1);
+	envman_set(argv[1], argv[2]);
 	return (0);
 }
 
@@ -118,18 +133,18 @@ int builtin_cd(int argc, char **argv)
 
 	if (argc > 2)
 	{
-		fprintf(stderr, "Usage: cd [path|-|~]\n");
+		print(STDERR_FILENO, "Usage: cd [path|-|~]", 1);
 		return (1);
 	}
 	if (argc == 1)
-		path = getenv("HOME"); /* if no args set path to HOME */
+		path = envman_value("HOME"); /* if no args set path to HOME */
 	else if (argc == 2)
 		path = argv[1]; /* get first arg as a path if exist */
 
 	if (!_strncmp(path, "-", 1))
-		path = getenv("OLDPWD"); /* cd to last working directory */
+		path = envman_value("OLDPWD"); /* cd to last working directory */
 	else if (!_strncmp(path, "~", 1))
-		path = getenv("HOME"); /* cd to HOME directory */
+		path = envman_value("HOME"); /* cd to HOME directory */
 
 	/* if no path or not exist then exit with failure */
 	if (!path)
@@ -141,13 +156,15 @@ int builtin_cd(int argc, char **argv)
 	}
 	else if (!S_ISDIR(statbuf.st_mode))
 	{
-		fprintf(stderr, "cd: The directory '%s' is not exist\n", path);
+		print(STDERR_FILENO, "cd: The directory '", 0);
+		print(STDERR_FILENO, path, 0);
+		print(STDERR_FILENO, "' is not exist", 1);
 		return (1);
 	}
 
-	setenv("OLDPWD", getenv("PWD"), 1); /* update OLDPWD env var */
+	envman_set("OLDPWD", envman_value("PWD")); /* update OLDPWD env var */
 	chdir(path); /* change current working directory */
 	if (getcwd(cwd, PATH_MAX))
-		setenv("PWD", cwd, 1); /* update PWD env var */
+		envman_set("PWD", cwd); /* update PWD env var */
 	return (0);
 }

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "includes/core.h"
 #include "includes/builtin.h"
+#include "includes/env.h"
 #include "includes/process.h"
 #include "includes/utils.h"
 
@@ -15,7 +16,7 @@
 void readline(char **line, size_t *size)
 {
 	int bufsize = BUFSIZE, ibuf = 0, ch;
-	char *buf, *prompt = getenv("PROMPT");
+	char *buf, *prompt = envman_value("PROMPT");
 
 	buf = malloc(bufsize * sizeof(char)); /* allocate one KB for the buffer */
 	if (!buf)
@@ -30,7 +31,7 @@ void readline(char **line, size_t *size)
 			if (ibuf)
 				continue; /* ignore EOF if buffer is not empty */
 			else
-				exit(EXIT_SUCCESS); /* exit shell on EOF if buffer is empty */
+				super_nova(EXIT_SUCCESS); /* exit shell on EOF if buffer is empty */
 		}
 		buf[ibuf] = ch == '\n' ? 0 : ch;
 		if (!buf[ibuf++]) /* end buffer on newline char */
@@ -53,7 +54,7 @@ void readline(char **line, size_t *size)
 	return;
 end:
 	fprintf(stderr, "%s: Memory allocation error\n", getenv("SHELL_EXEC"));
-	exit(EXIT_FAILURE);
+	super_nova(EXIT_FAILURE);
 }
 
 /**
@@ -92,7 +93,7 @@ char **splitline(char *line)
 	return (tokens);
 end:
 	fprintf(stderr, "Memory allocation error\n");
-	exit(EXIT_FAILURE);
+	super_nova(EXIT_FAILURE);
 }
 
 /**

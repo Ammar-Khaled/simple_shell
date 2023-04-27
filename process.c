@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
+#include "includes/env.h"
 #include "includes/process.h"
 #include "includes/utils.h"
 
@@ -22,7 +23,7 @@ char *cmdpath(char *cmd)
 	DIR *dirp;
 	struct dirent *entry;
 
-	pathvar = getenv("PATH"); /* get the path env var */
+	pathvar = envman_value("PATH"); /* get the path env var */
 	pathvar = _strdup(pathvar); /* duplicate to prevent modifying PATH */
 	if (!pathvar) /* if no PATH env var goto end */
 		goto end;
@@ -66,30 +67,35 @@ end:
  */
 int execute(char **cmd)
 {
-	char *path;
+	char *path, **environ;
 	pid_t pid;
 	int wstatus;
 
-	if (!cmd || !environ)
+	if (!cmd)
 		return (-1);
 	/* use cmd if it is a valid path otherwise search for its executable path */
 	path = access(cmd[0], F_OK | X_OK) != -1 ? _strdup(cmd[0]) : cmdpath(cmd[0]);
 	if (!path)
 	{
-		fprintf(stderr, "%s: 1: %s: not found!\n", getenv("SHELL_EXEC"), cmd[0]);
+		print(STDERR_FILENO, envman_value("SHELL_EXEC"), 0);
+		print(STDERR_FILENO, ": 1: ", 0);
+		print(STDERR_FILENO, cmd[0], 0);
+		print(STDERR_FILENO, ": not found!", 1);
 		return (-1);
 	}
 
 	pid = fork();
 	if (!pid)
 	{
+		environ = envman_arr(NULL); /* create array */
 		execve(path, cmd, environ);
-		perror(getenv("SHELL_EXEC"));
-		exit(EXIT_FAILURE);
+		envman_arr(environ); /* free array */
+		perror(envman_value("SHELL_EXEC"));
+		super_nova(EXIT_FAILURE);
 	}
 	else if (pid == -1)
 	{
-		perror(getenv("SHELL_EXEC"));
+		perror(envman_value("SHELL_EXEC"));
 		return (-1);
 	}
 
