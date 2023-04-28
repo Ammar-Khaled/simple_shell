@@ -52,8 +52,7 @@ int execute(char *filename, char *cmd, char **environ)
 		} while (!WIFEXITED(state) && !WIFSIGNALED(state));
 		state = WEXITSTATUS(state);
 	}
-	return (0);
-
+	return (state);
 }
 
 /**
@@ -80,8 +79,7 @@ loop:
 		goto exit;
 	}
 	trimedlineptr = _strtrim(lineptr);
-	if (execute(argv[0], trimedlineptr, environ))
-		goto exit;
+	exitstate = execute(argv[0], trimedlineptr, environ);
 	free(lineptr);
 	goto loop;
 exit:
