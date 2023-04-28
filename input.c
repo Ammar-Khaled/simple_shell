@@ -1,4 +1,6 @@
 #include "includes/main.h"
+#include "includes/memory.h"
+#include "includes/string.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,4 +46,41 @@ int read_command(FILE *stream, char **lineptr, size_t *size, char *filename)
 	else
 		return (READ_END);
 	return (nread);
+}
+
+/**
+ * split_command - splits the input line into tokens to execute
+ * @lineptr: the input line
+ *
+ * Return: an allocated null terminated list of arguments or tokens
+ */
+char **split_command(char *lineptr)
+{
+	char *token, **args;
+	size_t count = 0, size = 5;
+
+	if (!lineptr)
+		return (NULL);
+
+	args = malloc(size * sizeof(char *));
+	if (!args)
+		return (NULL);
+
+	lineptr = _strtrim(lineptr);
+	token = strtok(lineptr, " \n\r\t\v");
+	while (token)
+	{
+		args[count++] = token;
+		if (count == size)
+		{
+			args = _realloc(args,
+				size * sizeof(char *), (size + 5) * sizeof(char *));
+			size += 5;
+			if (!args)
+				return (NULL);
+		}
+		token = strtok(NULL, " \n\r\t\v");
+	}
+	args[count] = NULL;
+	return (args);
 }

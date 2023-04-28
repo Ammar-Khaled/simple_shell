@@ -1,59 +1,10 @@
 #include "includes/main.h"
-#include "includes/string.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #include <limits.h>
-
-/**
- * execute - execute command
- * @filename: the shell file name
- * @cmd: the command to be executed
- * @environ: the environment variables list
- *
- * Return: execute function state
- */
-int execute(char *filename, char *cmd, char **environ)
-{
-	char cmd_path[PATH_MAX], *res;
-	pid_t pid = 0;
-	int state = 0;
-
-	if (!cmd)
-		return (-1);
-
-	pid = fork();
-	if (!pid)
-	{
-		char *args[2] = { NULL, NULL };
-
-		res = realpath(cmd, cmd_path);
-		if (!res)
-		{
-			fprintf(stderr, "%s: %d: %s: not found\n", filename, 1, cmd);
-			return (-1);
-		}
-		args[0] = cmd_path;
-		execve(args[0], args, environ);
-		perror(filename);
-		return (-1);
-	}
-	else if (pid == -1)
-	{
-		perror(filename);
-		return (-1);
-	}
-	else if (pid > 0)
-	{
-		do {
-			waitpid(pid, &(state), WUNTRACED);
-		} while (!WIFEXITED(state) && !WIFSIGNALED(state));
-		state = WEXITSTATUS(state);
-	}
-	return (state);
-}
 
 /**
  * main - simple sh clone
@@ -65,7 +16,7 @@ int execute(char *filename, char *cmd, char **environ)
  */
 int main(int argc __attribute__((unused)), char **argv, char **environ)
 {
-	char *lineptr = NULL, *trimedlineptr;
+	char *lineptr = NULL, **args = NULL;
 	int err, exitstate = EXIT_SUCCESS;
 	size_t size = 0;
 
@@ -78,12 +29,17 @@ loop:
 			exitstate = EXIT_FAILURE;
 		goto exit;
 	}
-	trimedlineptr = _strtrim(lineptr);
-	exitstate = execute(argv[0], trimedlineptr, environ);
+	args = split_command(lineptr);
+	exitstate = execute(argv[0], args, environ);
 	free(lineptr);
+	lineptr = NULL;
+	free(args);
+	args = NULL;
 	goto loop;
 exit:
 	if (lineptr)
 		free(lineptr);
+	if (args)
+		free(args);
 	return (exitstate);
 }

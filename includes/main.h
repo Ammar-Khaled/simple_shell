@@ -17,9 +17,10 @@ struct execute_state
 	int execute;
 };
 
-int execute(char *filename, char *cmd, char **environ);
+int execute(char *filename, char **args, char **environ);
 
 void show_prompt(FILE *stream);
 int read_command(FILE *stream, char **lineptr, size_t *size, char *filename);
+char **split_command(char *lineptr);
 
 #endif
