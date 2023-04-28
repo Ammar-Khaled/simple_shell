@@ -1,5 +1,4 @@
 #include "includes/main.h"
-#include "includes/garbage.h"
 #include "includes/string.h"
 #include <stdlib.h>
 #include <string.h>
@@ -71,7 +70,6 @@ int main(int argc __attribute__((unused)), char **argv, char **environ)
 	int err, exitstate = EXIT_SUCCESS;
 	size_t size = 0;
 
-	global_trace(lineptr);
 loop:
 	show_prompt(stdin);
 	err = read_command(stdin, &lineptr, &size, argv[0]);
@@ -87,6 +85,7 @@ loop:
 	free(lineptr);
 	goto loop;
 exit:
-	global_free();
+	if (lineptr)
+		free(lineptr);
 	return (exitstate);
 }
