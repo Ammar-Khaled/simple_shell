@@ -1,3 +1,4 @@
+#include "includes/main.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,11 +9,10 @@
  * execute - execute command
  * @filename: the shell file name
  * @args: the command and its arguments to be executed
- * @environ: the environment variables list
  *
  * Return: execute function state
  */
-int execute(char *filename, char **args, char **environ)
+int execute(char *filename, char **args)
 {
 	char cmd_path[PATH_MAX], *cmd_name;
 	pid_t pid = 0;

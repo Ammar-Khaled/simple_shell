@@ -6,6 +6,8 @@
 #define READ_END -2
 #define READ_FAIL -1
 
+extern char **environ;
+
 /**
  * struct execute_state - the state information of the execute function
  * @process: the state of the executed process only set if @execute is zero
@@ -17,7 +19,7 @@ struct execute_state
 	int execute;
 };
 
-int execute(char *filename, char **args, char **environ);
+int execute(char *filename, char **args);
 
 void show_prompt(FILE *stream);
 int read_command(FILE *stream, char **lineptr, size_t *size, char *filename);

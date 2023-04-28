@@ -10,11 +10,10 @@
  * main - simple sh clone
  * @argc: number of arguments
  * @argv: the arguments list
- * @environ: the environment variables list
  *
  * Return: exit state
  */
-int main(int argc __attribute__((unused)), char **argv, char **environ)
+int main(int argc __attribute__((unused)), char **argv)
 {
 	char *lineptr = NULL, **args = NULL;
 	int err, exitstate = EXIT_SUCCESS;
@@ -30,7 +29,7 @@ loop:
 		goto exit;
 	}
 	args = split_command(lineptr);
-	exitstate = execute(argv[0], args, environ);
+	exitstate = execute(argv[0], args);
 	free(lineptr);
 	lineptr = NULL;
 	free(args);
