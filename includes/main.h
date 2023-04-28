@@ -19,6 +19,7 @@ struct execute_state
 	int execute;
 };
 
+char *cmd_get_path(char *cmd);
 int execute(char *filename, char **args);
 
 void show_prompt(FILE *stream);
