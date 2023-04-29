@@ -59,7 +59,7 @@ void split_command(context *ctx)
 		goto fail;
 
 	trimed = _strtrim(ctx->lineptr);
-	token = strtok(trimed, " \n\r\t\v");
+	token = _strtok(trimed, " \n\r\t\v");
 	while (token)
 	{
 		ctx->args[count++] = token;
@@ -71,7 +71,7 @@ void split_command(context *ctx)
 			if (!ctx->args)
 				goto fail;
 		}
-		token = strtok(NULL, " \n\r\t\v");
+		token = _strtok(NULL, " \n\r\t\v");
 	}
 	ctx->argc = count;
 	ctx->args[count] = NULL;

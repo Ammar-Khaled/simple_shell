@@ -30,14 +30,14 @@ char *cmd_get_path(char *cmd)
 	if (!path)
 		return (NULL);
 
-	token = strtok(path, ":");
+	token = _strtok(path, ":");
 	while (token)
 	{
 		snprintf(fullpath, PATH_MAX, "%s/%s", token, cmd);
 		resolved = realpath(fullpath, NULL);
 		if (resolved)
 			goto found;
-		token = strtok(NULL, ":");
+		token = _strtok(NULL, ":");
 	}
 	free(path);
 	return (NULL);
