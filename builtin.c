@@ -1,7 +1,9 @@
 #include "includes/main.h"
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <unistd.h>
@@ -89,4 +91,41 @@ int builtin_unsetenv(context *ctx)
 	}
 	unsetenv(ctx->args[1]);
 	return (EXIT_SUCCESS);
+}
+
+/**
+ * builtin_cd - change current working directory
+ * @ctx: the context object
+ *
+ * Return: status code
+ */
+int builtin_cd(context *ctx)
+{
+	struct stat statbuf;
+	char cwd[PATH_MAX], *path;
+
+	if (ctx->argc == 1)
+		path = getenv("HOME"); /* if no args set path to HOME */
+	else if (ctx->argc == 2)
+		path = ctx->args[1]; /* get first arg as a path if exist */
+
+	if (!strncmp(path, "-", 1))
+		path = getenv("OLDPWD"); /* cd to last working directory */
+	else if (!strncmp(path, "~", 1))
+		path = getenv("HOME"); /* cd to HOME directory */
+
+	/* if no path or not exist then exit with failure */
+	if (!path)
+		return (1);
+	else if (stat(path, &statbuf) == -1 || !S_ISDIR(statbuf.st_mode))
+	{
+		print_error(ctx, strerror(errno), NULL);
+		return (2);
+	}
+	
+	setenv("OLDPWD", getenv("PWD"), 1); /* update OLDPWD env var */
+	chdir(path); /* change current working directory */
+	if (getcwd(cwd, PATH_MAX))
+		setenv("PWD", cwd, 1); /* update PWD env var */
+	return (0);
 }
