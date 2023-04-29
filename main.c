@@ -54,7 +54,11 @@ loop:
 	split_command(&ctx);
 	if (ctx.signal == S_NULL && ctx.argc > 0)
 		execute(&ctx);
+	/* if signal is exit the exit */
 	if (ctx.signal == S_EXIT)
+		goto exit;
+	/* if not interactive mode and has fail state then exit */
+	if (!isatty(fileno(ctx.stream)) && ctx.state)
 		goto exit;
 	free_context(&ctx);
 	goto loop;
