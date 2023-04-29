@@ -56,7 +56,7 @@ builtin_action get_builtin(char *name)
 {
 	int i;
 	builtin builtins[] = {
-		{ "exit", builtin_exit },
+		{ "exit", builtin_exit }, { "env", builtin_env },
 	/*
 	 * { "env", builtin_env }, { "cd", builtin_cd },
 	 *	{ "setenv", builtin_setenv }, { "unsetenv", builtin_unsetenv },
