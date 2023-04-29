@@ -47,47 +47,101 @@ found:
 }
 
 /**
- * execute - execute command
- * @filename: the shell file name
- * @args: the command and its arguments to be executed
+ * get_builtin - searches and returns the action of the builtin command
+ * @name: the name of the builtin command to look for
  *
- * Return: execute function state
+ * Return: the command's action if command found otherwise NULL
  */
-int execute(char *filename, char **args)
+builtin_action get_builtin(char *name)
 {
-	char *cmd_name, *cmd_path;
-	pid_t pid = -5;
-	int state = -1;
+	int i;
+	builtin builtins[] = {
+		{ "exit", builtin_exit },
+	/*
+	 * { "env", builtin_env }, { "cd", builtin_cd },
+	 *	{ "setenv", builtin_setenv }, { "unsetenv", builtin_unsetenv },
+	 */
+		{ NULL, NULL }
+	};
 
-	if (!filename || !args || !*args || !environ)
-		return (0);
+	for (i = 0; builtins[i].name; i++)
+		if (!strcmp(builtins[i].name, name))
+			return (builtins[i].action);
+	return (NULL);
+}
 
-	cmd_name = args[0];
-	cmd_path = cmd_get_path(cmd_name);
+/**
+ * print_error - prints error to stderr
+ * @ctx: the command line context
+ * @err: the error message
+ */
+void print_error(context *ctx, char *err)
+{
+	fprintf(stderr, "%s: %d: %s: %s\n",
+				 ctx->shell_name, ctx->line, ctx->cmd_name, err);
+}
 
+/**
+ * execute - execute command
+ * @ctx: the command line context
+ */
+void execute(context *ctx)
+{
+	char *cmd_path;
+	builtin_action action;
+
+	ctx->signal = S_NULL;
+	if (!ctx->args || !*(ctx->args) || !environ)
+		goto fail;
+
+	ctx->cmd_name = ctx->args[0];
+	action = get_builtin(ctx->cmd_name);
+	if (action)
+	{
+		ctx->state = action(ctx);
+		return;
+	}
+
+	cmd_path = cmd_get_path(ctx->cmd_name);
 	if (cmd_path)
-		pid = fork();
+	{
+		run_command(ctx, cmd_path);
+		free(cmd_path);
+		return;
+	}
 	else
-		fprintf(stderr, "%s: %d: %s: not found\n", filename, 1, cmd_name);
+		print_error(ctx, "not found");
+fail:
+	ctx->signal = S_FAIL;
+}
+
+/**
+ * run_command - execute system command
+ * @ctx: the command line context
+ * @cmd_path: the system command fullpath
+ */
+void run_command(context *ctx, char *cmd_path)
+{
+	pid_t pid = fork();
+
 	if (!pid)
 	{
-		execve(cmd_path, args, environ);
-		perror(filename);
-		state = -1;
+		execve(cmd_path, ctx->args, environ);
+		perror(ctx->shell_name);
+		ctx->state = EXIT_FAILURE;
+		ctx->signal = S_EXIT;
 	}
 	else if (pid == -1)
 	{
-		perror(filename);
-		state = -1;
+		perror(ctx->shell_name);
+		ctx->signal = S_FAIL;
 	}
 	else if (pid > 0)
 	{
 		do {
-			waitpid(pid, &(state), WUNTRACED);
-		} while (!WIFEXITED(state) && !WIFSIGNALED(state));
-		state = WEXITSTATUS(state);
+			waitpid(pid, &(ctx->state), WUNTRACED);
+		} while (!WIFEXITED(ctx->state) && !WIFSIGNALED(ctx->state));
+		ctx->state = WEXITSTATUS(ctx->state);
+		ctx->signal = S_NULL;
 	}
-	if (cmd_path)
-		free(cmd_path);
-	return (state);
 }

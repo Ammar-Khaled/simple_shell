@@ -1,6 +1,4 @@
 #include "includes/main.h"
-#include "includes/memory.h"
-#include "includes/string.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,11 +8,11 @@
 
 /**
  * show_prompt - show prompt only if the stream is a tty
- * @stream: the input stream
+ * @ctx: the command line context
  */
-void show_prompt(FILE *stream)
+void show_prompt(context *ctx)
 {
-	int fd = fileno(stream);
+	int fd = fileno(ctx->stream);
 
 	if (isatty(fd))
 		write(fd, "$ ", 2);
@@ -22,65 +20,64 @@ void show_prompt(FILE *stream)
 
 /**
  * read_command - read user input
- * @stream: the stream to read the input from
- * @lineptr: pointer to the char *lineptr variable
- * @size: pointer to the input size variable
- * @filename: the executable filename
- *
- * Return: +ve for readed chars, -1 for getline error, -2 for reading end
+ * @ctx: the command line context
  */
-int read_command(FILE *stream, char **lineptr, size_t *size, char *filename)
+void read_command(context *ctx)
 {
 	size_t linesize = 0;
 	ssize_t nread = 0;
 
-	nread = getline(lineptr, &linesize, stream);
-	*size = nread >= 0 ? nread : 0;
+	ctx->signal = S_NULL;
+	nread = getline(&ctx->lineptr, &linesize, ctx->stream);
 	if (nread > 0)
-		(*lineptr)[*size - 1] = 0;
+		ctx->lineptr[nread - 1] = 0;
 	else if (errno == EINVAL || errno == ENOMEM)
 	{
-		perror(filename);
-		return (-1);
+		perror(ctx->shell_name);
+		ctx->signal = S_FAIL;
 	}
 	else
-		return (READ_END);
-	return (nread);
+	{
+		ctx->signal = S_EXIT;
+		ctx->state = EXIT_FAILURE;
+	}
 }
 
 /**
  * split_command - splits the input line into tokens to execute
- * @lineptr: the input line
- *
- * Return: an allocated null terminated list of arguments or tokens
+ * @ctx: the context line object
  */
-char **split_command(char *lineptr)
+void split_command(context *ctx)
 {
-	char *token, **args;
+	char *token, *trimed;
 	size_t count = 0, size = 5;
 
-	if (!lineptr)
-		return (NULL);
+	if (!ctx->lineptr)
+		goto fail;
 
-	args = malloc(size * sizeof(char *));
-	if (!args)
-		return (NULL);
+	ctx->signal = S_NULL;
+	ctx->args = malloc(size * sizeof(char *));
+	if (!ctx->args)
+		goto fail;
 
-	lineptr = _strtrim(lineptr);
-	token = strtok(lineptr, " \n\r\t\v");
+	trimed = _strtrim(ctx->lineptr);
+	token = strtok(trimed, " \n\r\t\v");
 	while (token)
 	{
-		args[count++] = token;
+		ctx->args[count++] = token;
 		if (count == size)
 		{
-			args = _realloc(args,
+			ctx->args = _realloc(ctx->args,
 				size * sizeof(char *), (size + 5) * sizeof(char *));
 			size += 5;
-			if (!args)
-				return (NULL);
+			if (!ctx->args)
+				goto fail;
 		}
 		token = strtok(NULL, " \n\r\t\v");
 	}
-	args[count] = NULL;
-	return (args);
+	ctx->argc = count;
+	ctx->args[count] = NULL;
+	return;
+fail:
+	ctx->signal = S_FAIL;
 }
