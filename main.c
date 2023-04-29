@@ -49,6 +49,36 @@ void reset_state(context *ctx)
 	ctx->state = EXIT_SUCCESS;
 }
 
+void setup(int argc, char **argv, context *ctx)
+{
+	char *filepath;
+
+	setenv("?", "0", 1);
+	ctx->shell_name = argv[0];
+	if (isatty(fileno(ctx->stream)))
+		ctx->mode = M_TTY;
+	else
+		ctx->mode = M_NTTY;
+	if (argc == 1)
+		return;
+	
+	ctx->mode = M_FILE;
+	filepath = realpath(argv[1], NULL);
+	if (!filepath)
+	{
+		fprintf(stderr, "%s: 0: Can't open %s\n", argv[0], argv[1]);
+		exit(ERR_NOT_FOUND);
+	}
+
+	ctx->stream = fopen(filepath, "r");
+	free(filepath);
+	if (!ctx->stream)
+	{
+		perror(ctx->shell_name);
+		exit(1);
+	}
+}
+
 /**
  * main - simple sh clone
  * @argc: number of arguments
@@ -65,8 +95,7 @@ int main(int argc __attribute__((unused)), char **argv)
 	context ctx = { stdin, NULL, NULL, NULL, NULL, 0, EXIT_SUCCESS,	0, S_NULL,
 		M_INIT };
 
-	ctx.shell_name = argv[0];
-	setenv("?", "0", 1);
+	setup(argc, argv, &ctx);
 loop:
 	show_prompt(&ctx);
 	ctx.line++;
@@ -88,5 +117,7 @@ loop:
 	goto loop;
 exit:
 	free_context(&ctx);
+	if (ctx.mode == M_FILE && ctx.stream)
+		fclose(ctx.stream);
 	return (ctx.state);
 }

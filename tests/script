@@ -1,0 +1,4 @@
+echo hello world
+ls /var
+ ls /bad
+exit
