@@ -122,7 +122,7 @@ int builtin_cd(context *ctx)
 		print_error(ctx, strerror(errno), NULL);
 		return (2);
 	}
-	
+
 	setenv("OLDPWD", getenv("PWD"), 1); /* update OLDPWD env var */
 	chdir(path); /* change current working directory */
 	if (getcwd(cwd, PATH_MAX))
