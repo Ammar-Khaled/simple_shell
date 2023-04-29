@@ -21,6 +21,25 @@ void free_context(context *ctx)
 }
 
 /**
+ * solve_args_envars - replace envar args with its values
+ * @ctx: the context object
+ */
+void solve_args_envars(context *ctx)
+{
+	int i;
+	char *value;
+
+	for (i = 0; ctx->args[i]; i++)
+		if (!strncmp("$", ctx->args[i], 1))
+		{
+			if (!strlen(ctx->args[i] + 1))
+				return;
+			value = getenv(ctx->args[i] + 1);
+			ctx->args[i] = value ? value : "";
+		}
+}
+
+/**
  * reset_state - resets the current context state
  * @ctx: the context object
  */
@@ -47,6 +66,7 @@ int main(int argc __attribute__((unused)), char **argv)
 		M_INIT };
 
 	ctx.shell_name = argv[0];
+	setenv("?", "0", 1);
 loop:
 	show_prompt(&ctx);
 	ctx.line++;

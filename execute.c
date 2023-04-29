@@ -86,7 +86,7 @@ void print_error(context *ctx, char *err, char *arg)
  */
 void execute(context *ctx)
 {
-	char *cmd_path;
+	char *cmd_path, state[10];
 	builtin_action action;
 
 	reset_state(ctx);
@@ -98,7 +98,7 @@ void execute(context *ctx)
 	if (action)
 	{
 		ctx->state = action(ctx);
-		return;
+		goto set_state;
 	}
 
 	cmd_path = cmd_get_path(ctx->cmd_name);
@@ -106,13 +106,17 @@ void execute(context *ctx)
 	{
 		run_command(ctx, cmd_path);
 		free(cmd_path);
-		return;
+		goto set_state;
 	}
 	else
 		print_error(ctx, "not found", NULL);
 fail:
 	ctx->signal = S_FAIL;
 	ctx->state = ERR_NOT_FOUND;
+	return;
+set_state:
+	snprintf(state, 10, "%d", ctx->state);
+	setenv("?", state, 1);
 }
 
 /**
@@ -123,9 +127,13 @@ fail:
 void run_command(context *ctx, char *cmd_path)
 {
 	pid_t pid = fork();
+	char pids[10];
 
 	if (!pid)
 	{
+		snprintf(pids, 10, "%d", getpid());
+		setenv("$", pids, 1);
+		solve_args_envars(ctx);
 		execve(cmd_path, ctx->args, environ);
 		perror(ctx->shell_name);
 		ctx->state = EXIT_FAILURE;
