@@ -72,6 +72,8 @@ void split_command(context *ctx)
 				goto fail;
 		}
 		token = _strtok(NULL, " \n\r\t\v");
+		if (token && *token == '#')
+			token = NULL;
 	}
 	ctx->argc = count;
 	ctx->args[count] = NULL;

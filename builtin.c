@@ -50,3 +50,43 @@ int builtin_env(context *ctx __attribute__((unused)))
 		printf("%s\n", *env);
 	return (0);
 }
+
+/**
+ * builtin_setenv - set or modify exist environment variable
+ * @ctx: the context object
+ *
+ * Return: exit status
+ */
+int builtin_setenv(context *ctx)
+{
+	if (ctx->argc != 3)
+	{
+		print_error(ctx, "Invalid Arguments", NULL);
+		return (EXIT_FAILURE);
+	}
+	setenv(ctx->args[1], ctx->args[2], 1);
+	return (EXIT_SUCCESS);
+}
+
+/**
+ * builtin_unsetenv - unsets an existing environment variables
+ * @ctx: the context object
+ *
+ * Return: exit status
+ */
+int builtin_unsetenv(context *ctx)
+{
+	if (ctx->argc != 2)
+	{
+		print_error(ctx, "Invalid Arguments", NULL);
+		return (EXIT_FAILURE);
+	}
+
+	if (!getenv(ctx->args[1]))
+	{
+		print_error(ctx, "variable not set", ctx->args[1]);
+		return (2);
+	}
+	unsetenv(ctx->args[1]);
+	return (EXIT_SUCCESS);
+}
