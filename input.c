@@ -12,10 +12,14 @@
  */
 void show_prompt(context *ctx)
 {
+	char *prompt;
 	int fd = fileno(ctx->stream);
 
+	prompt = getenv("PROMPT");
+	if (!prompt)
+		prompt = "$";
 	if (isatty(fd))
-		write(fd, "$ ", 2);
+		printf("%s ", prompt);
 }
 
 /**
