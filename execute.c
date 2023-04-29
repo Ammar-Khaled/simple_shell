@@ -74,11 +74,13 @@ builtin_action get_builtin(char *name)
  * print_error - prints error to stderr
  * @ctx: the command line context
  * @err: the error message
+ * @arg: extra error arg
  */
-void print_error(context *ctx, char *err)
+void print_error(context *ctx, char *err, char *arg)
 {
-	fprintf(stderr, "%s: %d: %s: %s\n",
-				 ctx->shell_name, ctx->line, ctx->cmd_name, err);
+	fprintf(stderr, "%s: %d: %s: %s%s%s\n",
+				 ctx->shell_name, ctx->line, ctx->cmd_name, err,
+					arg ? ": " : "", arg ? arg : "");
 }
 
 /**
@@ -110,7 +112,7 @@ void execute(context *ctx)
 		return;
 	}
 	else
-		print_error(ctx, "not found");
+		print_error(ctx, "not found", NULL);
 fail:
 	ctx->signal = S_FAIL;
 	ctx->state = EXIT_FAILURE;

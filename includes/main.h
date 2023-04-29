@@ -59,7 +59,7 @@ void reset_state(context *ctx);
 /* execute.c */
 char *cmd_get_path(char *cmd);
 builtin_action get_builtin(char *name);
-void print_error(context *ctx, char *err);
+void print_error(context *ctx, char *err, char *arg);
 void execute(context *ctx);
 void run_command(context *ctx, char *cmd_path);
 

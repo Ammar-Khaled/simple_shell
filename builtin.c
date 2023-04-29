@@ -1,4 +1,5 @@
 #include "includes/main.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -15,8 +16,23 @@
  */
 int builtin_exit(context *ctx)
 {
+	int i, state = 0;
+	char *num;
+
+	if (ctx->argc > 1)
+	{
+		num = ctx->args[1];
+		for (i = 0; num[i]; i++)
+			if (!isdigit(num[i]))
+			{
+				print_error(ctx, "Illegal number", num);
+				return (2);
+			}
+		state = atoi(num);
+	}
+
 	ctx->signal = S_EXIT;
-	return (0);
+	return (state);
 }
 
 /**
