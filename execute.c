@@ -112,7 +112,7 @@ void execute(context *ctx)
 		print_error(ctx, "not found", NULL);
 fail:
 	ctx->signal = S_FAIL;
-	ctx->state = EXIT_FAILURE;
+	ctx->state = ERR_NOT_FOUND;
 }
 
 /**

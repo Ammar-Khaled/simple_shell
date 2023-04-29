@@ -28,7 +28,7 @@ int builtin_exit(context *ctx)
 			if (!isdigit(num[i]))
 			{
 				print_error(ctx, "Illegal number", num);
-				return (2);
+				return (ERR_EXIT_INVALID_ARG);
 			}
 		state = atoi(num);
 	}

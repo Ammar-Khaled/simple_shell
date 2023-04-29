@@ -39,8 +39,12 @@ void reset_state(context *ctx)
  */
 int main(int argc __attribute__((unused)), char **argv)
 {
-  /* stream, lineptr, shell_name, args, cmd_name, argc, state, line, signal */
-	context ctx = { stdin, NULL, NULL, NULL, NULL, 0, EXIT_SUCCESS,	0, S_NULL };
+  /*
+	 * stream, lineptr, shell_name, args, cmd_name, argc, state, line, signal,
+	 * mode
+	 */
+	context ctx = { stdin, NULL, NULL, NULL, NULL, 0, EXIT_SUCCESS,	0, S_NULL,
+		M_INIT };
 
 	ctx.shell_name = argv[0];
 loop:

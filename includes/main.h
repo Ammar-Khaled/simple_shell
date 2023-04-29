@@ -3,6 +3,10 @@
 #define __MAIN_H__
 #include <stdio.h>
 
+#define ERR_NOT_FOUND 127
+#define ERR_EXIT_INVALID_ARG 128
+#define ERR_MISUSE_BUILTIN 2
+
 /**
  * enum context_signal - command processing end signal type
  * @S_NULL: no action to take
@@ -11,6 +15,16 @@
  */
 enum context_signal
 { S_NULL, S_EXIT, S_FAIL };
+
+/**
+ * enum run_mode - the mode that the shell is currently running in
+ * @M_INIT: initial value before shell setup determines the running mode
+ * @M_TTY: the input stream is a tty
+ * @M_NTTY: the input stream is not a tty
+ * @M_FILE: the opened stream is a commands file
+ */
+enum run_mode
+{ M_INIT, M_TTY, M_NTTY, M_FILE };
 
 extern char **environ;
 
@@ -25,6 +39,7 @@ extern char **environ;
  * @state: the current exit state
  * @line: the current command line number
  * @signal: the command processing end signal
+ * @mode: the currently running mode
  */
 typedef struct context_s
 {
@@ -37,6 +52,7 @@ typedef struct context_s
 	int state;
 	int line;
 	enum context_signal signal;
+	enum run_mode mode;
 } context;
 
 typedef int (*builtin_action)(context *ctx);
