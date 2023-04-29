@@ -16,9 +16,18 @@ void free_context(context *ctx)
 		free(ctx->lineptr);
 	if (ctx->args)
 		free(ctx->args);
-	ctx->signal = S_NULL;
 	ctx->lineptr = NULL;
 	ctx->args = NULL;
+}
+
+/**
+ * reset_state - resets the current context state
+ * @ctx: the context object
+ */
+void reset_state(context *ctx)
+{
+	ctx->signal = S_NULL;
+	ctx->state = EXIT_SUCCESS;
 }
 
 /**
@@ -43,7 +52,7 @@ loop:
 	else if (ctx.signal == S_FAIL)
 		goto loop;
 	split_command(&ctx);
-	if (ctx.signal == S_NULL)
+	if (ctx.signal == S_NULL && ctx.argc > 0)
 		execute(&ctx);
 	if (ctx.signal == S_EXIT)
 		goto exit;

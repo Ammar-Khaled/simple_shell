@@ -90,7 +90,7 @@ void execute(context *ctx)
 	char *cmd_path;
 	builtin_action action;
 
-	ctx->signal = S_NULL;
+	reset_state(ctx);
 	if (!ctx->args || !*(ctx->args) || !environ)
 		goto fail;
 
@@ -113,6 +113,7 @@ void execute(context *ctx)
 		print_error(ctx, "not found");
 fail:
 	ctx->signal = S_FAIL;
+	ctx->state = EXIT_FAILURE;
 }
 
 /**
@@ -142,6 +143,5 @@ void run_command(context *ctx, char *cmd_path)
 			waitpid(pid, &(ctx->state), WUNTRACED);
 		} while (!WIFEXITED(ctx->state) && !WIFSIGNALED(ctx->state));
 		ctx->state = WEXITSTATUS(ctx->state);
-		ctx->signal = S_NULL;
 	}
 }

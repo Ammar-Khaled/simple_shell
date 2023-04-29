@@ -27,7 +27,6 @@ void read_command(context *ctx)
 	size_t linesize = 0;
 	ssize_t nread = 0;
 
-	ctx->signal = S_NULL;
 	nread = getline(&ctx->lineptr, &linesize, ctx->stream);
 	if (nread > 0)
 		ctx->lineptr[nread - 1] = 0;
@@ -39,7 +38,6 @@ void read_command(context *ctx)
 	else
 	{
 		ctx->signal = S_EXIT;
-		ctx->state = EXIT_FAILURE;
 	}
 }
 
@@ -55,7 +53,7 @@ void split_command(context *ctx)
 	if (!ctx->lineptr)
 		goto fail;
 
-	ctx->signal = S_NULL;
+	reset_state(ctx);
 	ctx->args = malloc(size * sizeof(char *));
 	if (!ctx->args)
 		goto fail;

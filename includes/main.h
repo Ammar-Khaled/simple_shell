@@ -54,6 +54,7 @@ typedef struct builtin_s
 
 /* main.c */
 void free_context(context *ctx);
+void reset_state(context *ctx);
 
 /* execute.c */
 char *cmd_get_path(char *cmd);
