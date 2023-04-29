@@ -116,7 +116,7 @@ int builtin_cd(context *ctx)
 
 	/* if no path or not exist then exit with failure */
 	if (!path)
-		return (1);
+		return (0);
 	else if (stat(path, &statbuf) == -1 || !S_ISDIR(statbuf.st_mode))
 	{
 		print_error(ctx, strerror(errno), NULL);
